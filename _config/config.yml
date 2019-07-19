@@ -1,0 +1,6 @@
+---
+name: silverstripe-foxy-discounts-config
+---
+Dynamic\Foxy\Model\Setting:
+  extensions:
+    - Dynamic\Foxy\Discounts\Extension\FoxyAdminExtension
