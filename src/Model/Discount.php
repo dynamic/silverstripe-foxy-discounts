@@ -80,10 +80,6 @@ class Discount extends DataObject
             return $extended;
         }
 
-        if ($page = $this->getPage()) {
-            return $page->canView($member);
-        }
-
         return Permission::check('CMS_ACCESS', 'any', $member);
     }
 
@@ -99,10 +95,6 @@ class Discount extends DataObject
         $extended = $this->extendedCan(__FUNCTION__, $member);
         if ($extended !== null) {
             return $extended;
-        }
-
-        if ($page = $this->getPage()) {
-            return $page->canEdit($member);
         }
 
         return Permission::check('CMS_ACCESS', 'any', $member);
@@ -124,10 +116,6 @@ class Discount extends DataObject
         $extended = $this->extendedCan(__FUNCTION__, $member);
         if ($extended !== null) {
             return $extended;
-        }
-
-        if ($page = $this->getPage()) {
-            return $page->canArchive($member);
         }
 
         return Permission::check('CMS_ACCESS', 'any', $member);
