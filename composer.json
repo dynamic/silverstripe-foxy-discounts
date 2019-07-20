@@ -1,5 +1,5 @@
 {
-    "name": "dynamiv/silverstripe-foxy-discounts",
+    "name": "dynamic/silverstripe-foxy-discounts",
     "description": "Offer discounts on purchase conditions for your Foxy products.",
     "type": "silverstripe-vendormodule",
     "keywords": [
