@@ -21,9 +21,9 @@ class PageControllerExtension extends Extension
                 HiddenField::create(AddToCartForm::getGeneratedValue(
                     $code,
                     'discount_quantity_percentage',
-                    $this->getDiscountFieldValue())
-                )->setValue($this->getDiscountFieldValue()
-            ));
+                    $this->getDiscountFieldValue()
+                ))->setValue($this->getDiscountFieldValue())
+            );
         }
     }
 
