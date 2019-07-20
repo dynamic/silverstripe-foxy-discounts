@@ -20,7 +20,7 @@ class ProductDataExtension extends DataExtension
     public function getDiscountPrice()
     {
         if ($discount = $this->getActiveDiscount()) {
-            $price = $this->owner->Price - ($this->owner->Price * ($this->getActiveDiscount()->Percentage/100));
+            $price = $this->owner->Price - ($this->owner->Price * ($this->getActiveDiscount()->Percentage / 100));
             return $price;
         }
         return false;
