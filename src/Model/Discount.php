@@ -1,10 +1,16 @@
 <?php
 
-namespace Dynamic\Foxy\Discount\Model;
+namespace Dynamic\Foxy\Discounts\Model;
 
+use Dynamic\Products\Page\Product;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
+use SilverStripe\Versioned\GridFieldArchiveAction;
+use SilverStripe\Versioned\Versioned;
+use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
 
 class Discount extends DataObject
 {
@@ -24,19 +30,54 @@ class Discount extends DataObject
     private static $db = array(
         'Title' => 'Varchar(255)',
         'Quantity' => 'Int',
-        'Percentage' => 'Int'
+        'Percentage' => 'Int',
+        'StartTime' => 'DBDatetime',
+        'EndTime' => 'DBDatetime',
     );
+
+    /**
+     * @var array
+     */
+    private static $many_many = [
+        'Products' => Product::class,
+    ];
 
     /**
      * @var array
      */
     private static $summary_fields = array(
         'Title',
-        'Quantity',
         'DiscountPercentage' => [
             'title' => 'Discount',
         ],
+        'StartTime.Nice' => 'Starts',
+        'EndTime.Nice' => 'Ends',
+        'IsActive' => 'Active',
+        'IsGlobal' => 'Global',
+        'Products.count' => 'Products',
     );
+
+    /**
+     * @var array
+     */
+    private static $defaults = [
+        'Quantity' => 1,
+    ];
+
+    /**
+     * @var array
+     */
+    private static $casting = [
+        'IsActive' => 'Boolean',
+        'IsGlobal' => 'Boolean',
+    ];
+
+    /**
+     * @var array
+     */
+    private static $extensions = [
+        Versioned::class,
+    ];
 
     /**
      * @var string
@@ -49,11 +90,29 @@ class Discount extends DataObject
     public function getCMSFields()
     {
         $this->beforeUpdateCMSFields(function (FieldList $fields) {
-            $quantity = $fields->dataFieldByName('Quantity');
-            $quantity->setTitle('Quantity to trigger discount');
+            $fields->removeByName([
+                'Quantity',
+            ]);
+
+            //$quantity = $fields->dataFieldByName('Quantity');
+            //$quantity->setTitle('Quantity to trigger discount');
 
             $percentage = $fields->dataFieldByName('Percentage');
             $percentage->setTitle('Percent discount');
+
+            if ($this->ID) {
+                $field = $fields->dataFieldByName('Products');
+                $config = $field->getConfig();
+                $config
+                    ->removeComponentsByType([
+                        GridFieldAddExistingAutocompleter::class,
+                        GridFieldAddNewButton::class,
+                        GridFieldArchiveAction::class,
+                    ])
+                    ->addComponents([
+                        new GridFieldAddExistingSearchButton(),
+                    ]);
+            }
         });
 
         return parent::getCMSFields();
@@ -65,6 +124,23 @@ class Discount extends DataObject
     public function getDiscountPercentage()
     {
         return "{$this->Percentage}%";
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsActive()
+    {
+        $date = date('Y-m-d H:i:s', strtotime('now'));
+        return ($this->owner->StartTime <= $date && $this->owner->EndTime >= $date) && $this->owner->isPublished();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsGlobal()
+    {
+        return $this->Products()->count() === 0;
     }
 
     /**

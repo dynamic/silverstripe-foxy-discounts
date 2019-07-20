@@ -2,7 +2,7 @@
 
 namespace Dynamic\Foxy\Discounts\Test\Model;
 
-use Dynamic\Foxy\Discount\Model\Discount;
+use Dynamic\Foxy\Discounts\Model\Discount;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;

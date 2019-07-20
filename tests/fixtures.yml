@@ -45,6 +45,6 @@ SilverStripe\Security\Member:
     Email: "user"
     Password: "user"
 
-Dynamic\Foxy\Discount\Model\Discount:
+Dynamic\Foxy\Discounts\Model\Discount:
   one:
     Title: 'Black Friday Sale'
