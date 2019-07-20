@@ -2,7 +2,7 @@
 
 namespace Dynamic\Foxy\Discounts\Extension;
 
-use Dynamic\Foxy\Discount\Model\Discount;
+use Dynamic\Foxy\Discounts\Model\Discount;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
