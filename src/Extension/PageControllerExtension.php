@@ -6,6 +6,7 @@ use Dynamic\Foxy\Form\AddToCartForm;
 use Dynamic\Foxy\Model\FoxyHelper;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\ORM\DataObject;
 
 class PageControllerExtension extends Extension
 {
@@ -14,16 +15,19 @@ class PageControllerExtension extends Extension
      */
     public function updateAddToCartForm(&$form)
     {
-        if ($this->owner->data()->getActiveDiscount()) {
-            $code = $this->owner->data()->Code;
-            $fields = $form->Fields();
-            $fields->push(
-                HiddenField::create(AddToCartForm::getGeneratedValue(
-                    $code,
-                    'discount_quantity_percentage',
-                    $this->getDiscountFieldValue()
-                ))->setValue($this->getDiscountFieldValue())
-            );
+        $class = $this->owner->data()->ClassName;
+        if($class::singleton()->hasMethod('getActiveDiscount')) {
+            if ($this->owner->data()->getActiveDiscount()) {
+                $code = $this->owner->data()->Code;
+                $fields = $form->Fields();
+                $fields->push(
+                    HiddenField::create(AddToCartForm::getGeneratedValue(
+                        $code,
+                        'discount_quantity_percentage',
+                        $this->getDiscountFieldValue()
+                    ))->setValue($this->getDiscountFieldValue())
+                );
+            }
         }
     }
 
