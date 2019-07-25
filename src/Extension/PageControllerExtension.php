@@ -16,7 +16,7 @@ class PageControllerExtension extends Extension
     public function updateAddToCartForm(&$form)
     {
         $class = $this->owner->data()->ClassName;
-        if($class::singleton()->hasMethod('getActiveDiscount')) {
+        if ($class::singleton()->hasMethod('getActiveDiscount')) {
             if ($this->owner->data()->getActiveDiscount()) {
                 $code = $this->owner->data()->Code;
                 $fields = $form->Fields();
