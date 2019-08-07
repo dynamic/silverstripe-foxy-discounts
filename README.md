@@ -19,19 +19,23 @@ composer require dynamic/silverstripe-foxy-discounts
 ## License
 See [License](license.md)
 
-## Example configuration (optional)
-If your module makes use of the config API in SilverStripe it's a good idea to provide an example config
- here that will get the module working out of the box and expose the user to the possible configuration options.
+## Example configuration
 
-Provide a yaml code example where possible.
+Add the following extensions to your product classes:
 
 ```yaml
 
-Page:
-  config_option: true
-  another_config:
-    - item1
-    - item2
+Dynamic\Foxy\Model\Setting:
+  extensions:
+    - Dynamic\Foxy\Discounts\Extension\FoxyAdminExtension
+
+Dynamic\Products\Page\Product:
+  extensions:
+    - Dynamic\Foxy\Discounts\Extension\ProductDataExtension
+
+PageController:
+  extensions:
+    - Dynamic\Foxy\Discounts\Extension\PageControllerExtension
   
 ```
 
