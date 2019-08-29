@@ -103,7 +103,12 @@ class Discount extends DataObject
                     ->addComponents([
                         new GridFieldDeleteAction(false)
                     ]);
-                $discountGrid = GridField::create('DiscountTiers', 'Discount Tiers', $this->owner->DiscountTiers(), $config);
+                $discountGrid = GridField::create(
+                    'DiscountTiers',
+                    'Discount Tiers',
+                    $this->owner->DiscountTiers(),
+                    $config
+                );
                 $fields->addFieldToTab('Root.Main', $discountGrid);
 
                 // Products
