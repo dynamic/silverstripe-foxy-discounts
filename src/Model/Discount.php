@@ -15,6 +15,10 @@ use SilverStripe\Versioned\GridFieldArchiveAction;
 use SilverStripe\Versioned\Versioned;
 use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
 
+/**
+ * Class Discount
+ * @package Dynamic\Foxy\Discounts\Model
+ */
 class Discount extends DataObject
 {
     /**
@@ -34,6 +38,7 @@ class Discount extends DataObject
         'Title' => 'Varchar(255)',
         'StartTime' => 'DBDatetime',
         'EndTime' => 'DBDatetime',
+        'Type' => 'Enum("Percent, Amount")',
     );
 
     /**
@@ -81,6 +86,14 @@ class Discount extends DataObject
      * @var string
      */
     private static $table_name = 'FoxyDiscount';
+
+    /**
+     * @var array
+     */
+    private $type_mapping = [
+        'Percent' => 'discount_quantity_percentage',
+        'Amount' => 'discount_quantity_amount',
+    ];
 
     /**
      * @return FieldList
@@ -144,6 +157,15 @@ class Discount extends DataObject
     public function getIsGlobal()
     {
         return $this->Products()->count() === 0;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDiscountType()
+    {
+        $types = $this->type_mapping;
+        return $types[$this->Type];
     }
 
     /**
