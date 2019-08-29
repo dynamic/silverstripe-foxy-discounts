@@ -2,7 +2,6 @@
 
 namespace Dynamic\Foxy\Discounts\Model;
 
-use Dynamic\Products\Page\Product;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
@@ -46,13 +45,6 @@ class Discount extends DataObject
      */
     private static $has_many = [
         'DiscountTiers' => DiscountTier::class,
-    ];
-
-    /**
-     * @var array
-     */
-    private static $many_many = [
-        'Products' => Product::class,
     ];
 
     /**
@@ -123,19 +115,6 @@ class Discount extends DataObject
                     $config
                 );
                 $fields->addFieldToTab('Root.Main', $discountGrid);
-
-                // Products
-                $field = $fields->dataFieldByName('Products');
-                $config = $field->getConfig();
-                $config
-                    ->removeComponentsByType([
-                        GridFieldAddExistingAutocompleter::class,
-                        GridFieldAddNewButton::class,
-                        GridFieldArchiveAction::class,
-                    ])
-                    ->addComponents([
-                        new GridFieldAddExistingSearchButton(),
-                    ]);
             }
         });
 

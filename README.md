@@ -39,6 +39,51 @@ PageController:
   
 ```
 
+Create a data extension to add a `many_many` relation to your base product class(es):
+
+```php
+<?
+
+namespace {
+    use SilverStripe\ORM\DataExtension;
+    use Dynamic\Products\Page\Product;
+    
+    class DiscountDataExtension extends DataExtension
+    {
+        private static $many_many = [
+            'Products' => Product::class,
+        ];
+        
+        public function updateCMSFields(FieldList $fields)
+        {
+            if ($this->owner->ID) {
+                // Products
+                $field = $fields->dataFieldByName('Products');
+                $config = $field->getConfig();
+                $config
+                    ->removeComponentsByType([
+                        GridFieldAddExistingAutocompleter::class,
+                        GridFieldAddNewButton::class,
+                        GridFieldArchiveAction::class,
+                    ])
+                    ->addComponents([
+                        new GridFieldAddExistingSearchButton(),
+                    ]);
+            }
+        }
+    }
+}       
+
+```
+
+And apply to `Discount` in `foxy.yml`:
+
+```yaml
+Dynamic\Foxy\Discounts\Model\Discount:
+  extensions:
+    - DiscountDataExtension
+```
+
 ## Maintainers
 *  [Dynamic](http://www.dynamicagency.com) (<dev@dynamicagency.com>)
  
