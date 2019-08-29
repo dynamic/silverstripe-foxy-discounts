@@ -37,8 +37,12 @@ class PageControllerExtension extends Extension
     public function getDiscountFieldValue()
     {
         if ($discount = $this->owner->data()->getActiveDiscount()) {
-            $string = "|{$discount->Quantity}-{$discount->Percentage}";
-            return "{$discount->Title}{allunits{$string}}";
+            $tiers = $discount->DiscountTiers();
+            $bulkString = '';
+            foreach ($tiers as $tier) {
+                $bulkString .= "|{$tier->Quantity}-{$tier->Percentage}";
+            }
+            return "{$discount->Title}{allunits{$bulkString}}";
         }
         return false;
     }

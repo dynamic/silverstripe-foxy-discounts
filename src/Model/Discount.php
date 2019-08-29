@@ -4,8 +4,11 @@ namespace Dynamic\Foxy\Discounts\Model;
 
 use Dynamic\Products\Page\Product;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 use SilverStripe\Versioned\GridFieldArchiveAction;
@@ -29,11 +32,16 @@ class Discount extends DataObject
      */
     private static $db = array(
         'Title' => 'Varchar(255)',
-        'Quantity' => 'Int',
-        'Percentage' => 'Int',
         'StartTime' => 'DBDatetime',
         'EndTime' => 'DBDatetime',
     );
+
+    /**
+     * @var array
+     */
+    private static $has_many = [
+        'DiscountTiers' => DiscountTier::class,
+    ];
 
     /**
      * @var array
@@ -47,22 +55,12 @@ class Discount extends DataObject
      */
     private static $summary_fields = array(
         'Title',
-        'DiscountPercentage' => [
-            'title' => 'Discount',
-        ],
         'StartTime.Nice' => 'Starts',
         'EndTime.Nice' => 'Ends',
         'IsActive' => 'Active',
         'IsGlobal' => 'Global',
         'Products.count' => 'Products',
     );
-
-    /**
-     * @var array
-     */
-    private static $defaults = [
-        'Quantity' => 1,
-    ];
 
     /**
      * @var array
@@ -90,17 +88,30 @@ class Discount extends DataObject
     public function getCMSFields()
     {
         $this->beforeUpdateCMSFields(function (FieldList $fields) {
-            $fields->removeByName([
-                'Quantity',
-            ]);
-
-            //$quantity = $fields->dataFieldByName('Quantity');
-            //$quantity->setTitle('Quantity to trigger discount');
-
-            $percentage = $fields->dataFieldByName('Percentage');
-            $percentage->setTitle('Percent discount');
-
             if ($this->ID) {
+                $fields->removeByName([
+                    'DiscountTiers',
+                ]);
+
+                // ProductDiscountTiers
+                $config = GridFieldConfig_RelationEditor::create();
+                $config
+                    ->removeComponentsByType([
+                        GridFieldAddExistingAutocompleter::class,
+                        GridFieldDeleteAction::class,
+                    ])
+                    ->addComponents([
+                        new GridFieldDeleteAction(false)
+                    ]);
+                $discountGrid = GridField::create(
+                    'DiscountTiers',
+                    'Discount Tiers',
+                    $this->owner->DiscountTiers(),
+                    $config
+                );
+                $fields->addFieldToTab('Root.Main', $discountGrid);
+
+                // Products
                 $field = $fields->dataFieldByName('Products');
                 $config = $field->getConfig();
                 $config
@@ -116,14 +127,6 @@ class Discount extends DataObject
         });
 
         return parent::getCMSFields();
-    }
-
-    /**
-     * @return string
-     */
-    public function getDiscountPercentage()
-    {
-        return "{$this->Percentage}%";
     }
 
     /**
