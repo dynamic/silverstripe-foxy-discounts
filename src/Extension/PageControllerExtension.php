@@ -8,6 +8,10 @@ use SilverStripe\Core\Extension;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\ORM\DataObject;
 
+/**
+ * Class PageControllerExtension
+ * @package Dynamic\Foxy\Discounts\Extension
+ */
 class PageControllerExtension extends Extension
 {
     /**
@@ -17,13 +21,13 @@ class PageControllerExtension extends Extension
     {
         $class = $this->owner->data()->ClassName;
         if ($class::singleton()->hasMethod('getActiveDiscount')) {
-            if ($this->owner->data()->getActiveDiscount()) {
+            if ($discount = $this->owner->data()->getActiveDiscount()) {
                 $code = $this->owner->data()->Code;
                 $fields = $form->Fields();
                 $fields->push(
                     HiddenField::create(AddToCartForm::getGeneratedValue(
                         $code,
-                        'discount_quantity_percentage',
+                        $discount->getDiscountType(),
                         $this->getDiscountFieldValue()
                     ))->setValue($this->getDiscountFieldValue())
                 );
@@ -40,9 +44,15 @@ class PageControllerExtension extends Extension
             $tiers = $discount->DiscountTiers();
             $bulkString = '';
             foreach ($tiers as $tier) {
-                $bulkString .= "|{$tier->Quantity}-{$tier->Percentage}";
+                if ($discount->Type == 'Percent') {
+                    $bulkString .= "|{$tier->Quantity}-{$tier->Percentage}";
+                    $method = 'allunits';
+                } elseif ($discount->Type == 'Amount') {
+                    $bulkString .= "|{$tier->Quantity}-{$tier->Amount}";
+                    $method = 'allunits';
+                }
             }
-            return "{$discount->Title}{allunits{$bulkString}}";
+            return "{$discount->Title}{{$method}{$bulkString}}";
         }
         return false;
     }

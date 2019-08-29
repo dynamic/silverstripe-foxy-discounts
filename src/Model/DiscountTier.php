@@ -5,6 +5,10 @@ namespace Dynamic\Foxy\Discounts\Model;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataObject;
 
+/**
+ * Class DiscountTier
+ * @package Dynamic\Foxy\Discounts\Model
+ */
 class DiscountTier extends DataObject
 {
     /**
@@ -13,6 +17,7 @@ class DiscountTier extends DataObject
     private static $db = [
         'Quantity' => 'Int',
         'Percentage' => 'Int',
+        'Amount' => 'Currency',
     ];
 
     /**
@@ -33,7 +38,7 @@ class DiscountTier extends DataObject
      * @var array
      */
     private static $summary_fields = [
-        'DiscountPercentage' => [
+        'DiscountLabel' => [
             'title' => 'Discount',
         ],
         'Quantity',
@@ -64,8 +69,28 @@ class DiscountTier extends DataObject
             $quantity = $fields->dataFieldByName('Quantity');
             $quantity->setTitle('Quantity to trigger discount');
 
-            $percentage = $fields->dataFieldByName('Percentage');
-            $percentage->setTitle('Percent discount');
+            $type = $this->Discount()->Type;
+            $percentage = $fields->dataFieldByName('Percentage')
+                ->setTitle('Percent discount');
+            $amount = $fields->dataFieldByName('Amount')
+                ->setTitle('Amount to discount');
+
+            $fields->removeByName([
+                'Percentage',
+                'Amount',
+            ]);
+
+            if ($type == 'Percent') {
+                $fields->addFieldToTab(
+                    'Root.Main',
+                    $percentage
+                );
+            } elseif ($type == 'Amount') {
+                $fields->addFieldToTab(
+                    'Root.Main',
+                    $amount
+                );
+            }
         });
 
         return parent::getCMSFields();
@@ -74,8 +99,13 @@ class DiscountTier extends DataObject
     /**
      * @return string
      */
-    public function getDiscountPercentage()
+    public function getDiscountLabel()
     {
-        return "{$this->Percentage}%";
+        $type = $this->Discount()->Type;
+        if ($type == 'Percent') {
+            return "{$this->Percentage}%";
+        } elseif ($type == 'Amount') {
+            return $this->dbObject('Amount')->Nice();
+        }
     }
 }

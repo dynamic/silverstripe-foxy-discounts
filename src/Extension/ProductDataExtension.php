@@ -5,6 +5,10 @@ namespace Dynamic\Foxy\Discounts\Extension;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use SilverStripe\ORM\DataExtension;
 
+/**
+ * Class ProductDataExtension
+ * @package Dynamic\Foxy\Discounts\Extension
+ */
 class ProductDataExtension extends DataExtension
 {
     /**
@@ -20,8 +24,15 @@ class ProductDataExtension extends DataExtension
     public function getDiscountPrice()
     {
         if ($discount = $this->getActiveDiscount()) {
-            $price = $this->owner->Price - ($this->owner->Price * ($this->getActiveDiscount()->Percentage / 100));
-            return $price;
+            if ($discount->DiscountTiers()->count() > 1) {
+                if ($discount->Type == 'Percent') {
+                    $discount_amount = $this->owner->Price * ($discount->DiscountTiers()->first()->Percentage / 100);
+                } elseif ($discount->Type == 'Amount') {
+                    $discount_amount = $discount->DiscountTiers()->first()->Amount;
+                }
+                $price = $this->owner->Price - $discount_amount;
+                return $price;
+            }
         }
         return false;
     }
