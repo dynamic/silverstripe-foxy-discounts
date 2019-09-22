@@ -119,7 +119,7 @@ class DiscountHelper
             ->sort('Quantity DESC')->first();
 
         $price = ($this->getDiscount()->Type == 'Percent')
-            ? $price - ($price * ($tier->Percentage/100))
+            ? $price - ($price * ($tier->Percentage / 100))
             : $price - $tier->Amount;
 
         return $this->discounted_price = $price;
