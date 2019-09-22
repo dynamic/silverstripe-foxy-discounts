@@ -1,31 +1,43 @@
 ;(function ($) {
+    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+    var trackChange = function (element) {
+        var observer = new MutationObserver(function (mutations, observer) {
+            if (mutations[0].attributeName == "value") {
+                $(element).trigger("change");
+            }
+        });
+        observer.observe(element, {
+            attributes: true
+        });
+    };
+
     var optionsTrigger = $('select.product-options'),
-        quantityTrigger = $('button.changeAmount'),
+        trackQuantity = $('input[type="hidden"][name="quantity"]'),
         calculationFields = [
             'select.product-options',
             'input[name="price"]',
             'input[name="h:product_id"]'
         ],
-        getVisibleQuantityField = function (element) {
-            return (element !== undefined)
-                ? element.parent().parent().find("input[name='x:visibleQuantity']")
-                : $('#amountPlus').parent().parent().find("input[name='x:visibleQuantity']");
+        getQuantityValue = function () {
+            return trackQuantity.val().split('||')[0];
         };
 
     optionsTrigger.bind('change', function () {
         fetchDiscountPrice();
     });
 
-    quantityTrigger.bind('click', function () {
-        fetchDiscountPrice($(this));
+    trackChange(trackQuantity[0]);
+    trackQuantity.on('change', function (event) {
+        fetchDiscountPrice();
     });
 
-    function fetchDiscountPrice(element) {
+    function fetchDiscountPrice() {
         var data = {};
 
         $.each(calculationFields, function (k, v) {
             var inputField = $(v),
-                name = undefined;
+                name;
 
             if (inputField.is('input')) {
                 name = inputField.attr('name');
@@ -36,11 +48,7 @@
             }//*/
         });
         data.isAjax = 1;
-        data['x:visibleQuantity'] = (element !== undefined)
-        ? getVisibleQuantityField(element).val()
-        : getVisibleQuantityField().val();
-
-        console.log(data);
+        data.quantity = getQuantityValue();
 
         $.ajax({
             type: 'GET',

@@ -90,7 +90,7 @@ class PageControllerExtension extends Extension
             return;
         }
 
-        $quantity = (int)$request->getVar('x:visibleQuantity');
+        $quantity = (int)$request->getVar('quantity');
 
         $cost = $product->Price * $quantity;
 
