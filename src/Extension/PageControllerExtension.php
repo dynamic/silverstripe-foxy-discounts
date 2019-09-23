@@ -2,6 +2,8 @@
 
 namespace Dynamic\Foxy\Discounts\Extension;
 
+use Dynamic\Foxy\Discounts\DiscountHelper;
+use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Form\AddToCartForm;
 use Dynamic\Products\Page\Product;
@@ -39,15 +41,16 @@ class PageControllerExtension extends Extension
     public function updateAddToCartForm(&$form)
     {
         $class = $this->owner->data()->ClassName;
-        if ($class::singleton()->hasMethod('getActiveDiscount')) {
-            if ($discount = $this->owner->data()->getActiveDiscount()) {
+        if ($class::singleton()->hasMethod('getBestDiscount')) {
+            /** @var DiscountHelper $discount */
+            if ($discount = $this->owner->data()->getBestDiscount()) {
                 Requirements::javascript('dynamic/silverstripe-foxy-discounts: client/dist/javascript/discount.js');
                 $code = $this->owner->data()->Code;
                 $fields = $form->Fields();
                 $fields->push(
                     HiddenField::create(AddToCartForm::getGeneratedValue(
                         $code,
-                        $discount->getDiscountType(),
+                        $discount->getDiscount()->getDiscountType(),
                         $this->getDiscountFieldValue()
                     ))->setValue($this->getDiscountFieldValue())
                         ->addExtraClass('product-discount')
@@ -61,7 +64,8 @@ class PageControllerExtension extends Extension
      */
     public function getDiscountFieldValue()
     {
-        if ($discount = $this->owner->data()->getActiveDiscount()) {
+        /** @var Discount $discount */
+        if ($discount = $this->owner->data()->getBestDiscount()->getDiscount()) {
             $tiers = $discount->DiscountTiers();
             $bulkString = '';
             foreach ($tiers as $tier) {
@@ -135,9 +139,12 @@ class PageControllerExtension extends Extension
      */
     protected function getDiscount($quantity)
     {
-        $best = $this->owner->data()->getActiveDiscount();
+        /** @var DiscountHelper $best */
+        $best = $this->owner->data()->getBestDiscount();
 
-        $tier = $best->DiscountTiers()->filter('Quantity:LessThanOrEqual', $quantity)->sort('Quantity DESC')->first();
+        $best->setDiscountTier($quantity);
+
+        $tier = $best->getDiscountTier();
 
         return $tier;
     }

@@ -12,7 +12,7 @@
         });
     };
 
-    var optionsTrigger = $('select.product-options'),
+    var optionsTrigger = $('input[type="select"].product-options'),
         trackQuantity = $('input[type="hidden"][name="quantity"]'),
         calculationFields = [
             'select.product-options',
@@ -23,8 +23,12 @@
             return trackQuantity.val().split('||')[0];
         };
 
-    optionsTrigger.bind('change', function () {
-        fetchDiscountPrice();
+    $.each(optionsTrigger, function () {
+        trackChange($(this));
+    });
+    optionsTrigger.on('change', function () {
+        console.log('foo');
+        //fetchDiscountPrice();
     });
 
     trackChange(trackQuantity[0]);
@@ -49,6 +53,8 @@
         });
         data.isAjax = 1;
         data.quantity = getQuantityValue();
+
+        console.log(data);
 
         $.ajax({
             type: 'GET',

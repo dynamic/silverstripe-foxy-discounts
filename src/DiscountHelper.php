@@ -3,6 +3,7 @@
 namespace Dynamic\Foxy\Discounts;
 
 use Dynamic\Foxy\Discounts\Model\Discount;
+use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Model\ProductOption;
 use SilverStripe\Core\Injector\Injectable;
 
@@ -34,6 +35,17 @@ class DiscountHelper
      */
     private $discounted_price;
 
+    /**
+     * @var DiscountTier
+     */
+    private $discount_tier;
+
+    /**
+     * DiscountHelper constructor.
+     * @param $product
+     * @param $discount
+     * @param ProductOption|string|null $productOption
+     */
     public function __construct($product, $discount, $productOption = null)
     {
         $this->setProduct($product);
@@ -106,6 +118,31 @@ class DiscountHelper
     }
 
     /**
+     * @param int $quantity
+     * @return $this
+     */
+    public function setDiscountTier($quantity = 1)
+    {
+        $this->discount_tier = $this->getDiscount()->DiscountTiers()
+            ->filter('Quantity:LessThanOrEqual', $quantity)
+            ->sort('Quantity DESC')->first();
+
+        return $this;
+    }
+
+    /**
+     * @return DiscountTier
+     */
+    public function getDiscountTier()
+    {
+        if (!$this->discount_tier) {
+            $this->setDiscountTier();
+        }
+
+        return $this->discount_tier;
+    }
+
+    /**
      * @return float|int
      */
     public function setDiscountedPrice()
@@ -114,9 +151,7 @@ class DiscountHelper
             ? $this->getProductOption()->getPrice($this->getProduct())
             : $this->getProduct()->Price;
 
-        $tier = $this->getDiscount()->DiscountTiers()
-            ->filter('Quantity:LessThanOrEqual', 1)
-            ->sort('Quantity DESC')->first();
+        $tier = $this->getDiscountTier();
 
         $price = ($this->getDiscount()->Type == 'Percent')
             ? $price - ($price * ($tier->Percentage / 100))
