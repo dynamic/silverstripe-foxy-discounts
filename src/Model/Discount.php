@@ -28,6 +28,14 @@ class Discount extends DataObject
     private static $plural_name = 'Discounts';
 
     /**
+     * This will relay the total amount based on discount, option and quantity if true.
+     * If false, it will assume the quantity is 1
+     *
+     * @var bool
+     */
+    private static $calculate_total = false;
+
+    /**
      * @var array
      */
     private static $db = [
