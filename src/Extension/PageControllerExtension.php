@@ -95,24 +95,34 @@ class PageControllerExtension extends Extension
             return;
         }
 
+        $totalPrice = Discount::config()->get('calculate_total');
         $quantity = (int)$request->getVar('quantity');
-
-        $cost = $product->Price * $quantity;
-
+        $cost = ($totalPrice) ? $product->Price * $quantity : $product->Price;
         $optionsQuery = $this->getOptionsQuery($request->getVars());
-
         $options = $product->Options()->filter($optionsQuery);
 
         foreach ($options as $option) {
             switch ($option->PriceModifierAction) {
                 case 'Add':
-                    $cost += ($option->PriceModifier * $quantity);
+                    if ($totalPrice) {
+                        $cost += ($option->PriceModifier * $quantity);
+                    } else {
+                        $cost += $option->PriceModifier;
+                    }
                     break;
                 case 'Subtract':
-                    $cost -= ($option->PriceModifier * $quantity);
+                    if ($totalPrice) {
+                        $cost -= ($option->PriceModifier * $quantity);
+                    } else {
+                        $cost -= $option->ProceModifier;
+                    }
                     break;
                 case 'Set':
-                    $cost = ($option->PriceModifier * $quantity);
+                    if ($totalPrice) {
+                        $cost = ($option->PriceModifier * $quantity);
+                    } else {
+                        $cost = $option->PriceModifier;
+                    }
                     break;
             }
         }
