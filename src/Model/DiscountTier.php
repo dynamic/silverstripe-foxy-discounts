@@ -52,9 +52,9 @@ class DiscountTier extends DataObject
     /**
      * @var array
      */
-    private static $default_sort = array(
-        'Quantity'
-    );
+    private static $default_sort = [
+        'Quantity',
+    ];
 
     /**
      * @return FieldList|void
@@ -94,6 +94,32 @@ class DiscountTier extends DataObject
         });
 
         return parent::getCMSFields();
+    }
+
+    /**
+     * @return \SilverStripe\ORM\ValidationResult|void
+     */
+    public function validate()
+    {
+        $response = parent::validate();
+
+        if ($this->exists()) {
+            $exclude['ID'] = $this->ID;
+        }
+
+        /** @var Discount $discount */
+        if ($discount = Discount::get()->byID($this->DiscountID)) {
+            $existing = $discount->DiscountTiers()->filter('Quantity', $this->Quantity);
+            if (isset($exclude)) {
+                $existing = $existing->exclude($exclude);
+            }
+
+            if ($existing->count() > 0) {
+                $response->addError("A discount tier already has the quantity {$this->Quantity} set");
+            }
+        }
+
+        return $response;
     }
 
     /**
