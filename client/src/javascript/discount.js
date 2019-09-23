@@ -12,7 +12,7 @@
         });
     };
 
-    var optionsTrigger = $('input[type="select"].product-options'),
+    var optionsTrigger = $('.product-options'),
         trackQuantity = $('input[type="hidden"][name="quantity"]'),
         calculationFields = [
             'select.product-options',
@@ -24,11 +24,10 @@
         };
 
     $.each(optionsTrigger, function () {
-        trackChange($(this));
+        trackChange($(this)[0]);
     });
     optionsTrigger.on('change', function () {
-        console.log('foo');
-        //fetchDiscountPrice();
+        fetchDiscountPrice();
     });
 
     trackChange(trackQuantity[0]);
