@@ -54,11 +54,9 @@
         data.isAjax = 1;
         data.quantity = getQuantityValue();
 
-        console.log(data);
-
         $.ajax({
             type: 'GET',
-            url: window.location.href + '/fetchprice/',
+            url: window.location.href + 'fetchprice/',
             data: data
         }).success(function (response) {
             $('.standard-price').html('$' + parseFloat(response).toFixed(2));

@@ -9,6 +9,7 @@ use Dynamic\Foxy\Form\AddToCartForm;
 use Dynamic\Products\Page\Product;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Extension;
+use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
 
@@ -30,7 +31,7 @@ class PageControllerExtension extends Extension
      */
     private static $exempt_fields = [
         'price',
-        'x:visibleQuantity',
+        'quantity',
         'h:product_id',
         'isAjax',
     ];
@@ -156,7 +157,7 @@ class PageControllerExtension extends Extension
     protected function getOptionsQuery($vars)
     {
         $exempt = $this->owner->config()->get('exempt_fields');
-        $filter = ['PriceModifierAction:not' => null];
+        $filter['PriceModifierAction:not'] = null;
 
         foreach ($vars as $key => $val) {
             if (!in_array($key, $exempt)) {
