@@ -5,14 +5,11 @@ namespace Dynamic\Foxy\Discounts\Model;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
-use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
-use SilverStripe\Versioned\GridFieldArchiveAction;
 use SilverStripe\Versioned\Versioned;
-use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
 
 /**
  * Class Discount
@@ -33,12 +30,12 @@ class Discount extends DataObject
     /**
      * @var array
      */
-    private static $db = array(
+    private static $db = [
         'Title' => 'Varchar(255)',
         'StartTime' => 'DBDatetime',
         'EndTime' => 'DBDatetime',
         'Type' => 'Enum("Percent, Amount")',
-    );
+    ];
 
     /**
      * @var array
@@ -50,14 +47,14 @@ class Discount extends DataObject
     /**
      * @var array
      */
-    private static $summary_fields = array(
+    private static $summary_fields = [
         'Title',
         'StartTime.Nice' => 'Starts',
         'EndTime.Nice' => 'Ends',
         'IsActive' => 'Active',
         'IsGlobal' => 'Global',
         'Products.count' => 'Products',
-    );
+    ];
 
     /**
      * @var array
@@ -106,7 +103,7 @@ class Discount extends DataObject
                         GridFieldDeleteAction::class,
                     ])
                     ->addComponents([
-                        new GridFieldDeleteAction(false)
+                        new GridFieldDeleteAction(false),
                     ]);
                 $discountGrid = GridField::create(
                     'DiscountTiers',
@@ -127,6 +124,7 @@ class Discount extends DataObject
     public function getIsActive()
     {
         $date = date('Y-m-d H:i:s', strtotime('now'));
+
         return ($this->owner->StartTime <= $date && $this->owner->EndTime >= $date) && $this->owner->isPublished();
     }
 
@@ -144,6 +142,7 @@ class Discount extends DataObject
     public function getDiscountType()
     {
         $types = $this->type_mapping;
+
         return $types[$this->Type];
     }
 
@@ -209,7 +208,7 @@ class Discount extends DataObject
      *
      * @return boolean
      */
-    public function canCreate($member = null, $context = array())
+    public function canCreate($member = null, $context = [])
     {
         $extended = $this->extendedCan(__FUNCTION__, $member);
         if ($extended !== null) {

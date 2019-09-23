@@ -2,8 +2,10 @@
 
 namespace Dynamic\Foxy\Discounts\Extension;
 
+use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\HasManyList;
 
 /**
  * Class ProductDataExtension
@@ -12,6 +14,16 @@ use SilverStripe\ORM\DataExtension;
 class ProductDataExtension extends DataExtension
 {
     /**
+     * @var
+     */
+    private $discounts_list;
+
+    /**
+     * @var DiscountHelper
+     */
+    private $best_discount;
+
+    /**
      * @var array
      */
     private static $belongs_many_many = [
@@ -19,46 +31,98 @@ class ProductDataExtension extends DataExtension
     ];
 
     /**
-     * @return bool|float|int|mixed
+     * @return $this
      */
-    public function getDiscountPrice()
+    private function setDiscountsList()
     {
-        if ($discount = $this->getActiveDiscount()) {
-            if ($discount->DiscountTiers()->count() > 1) {
-                if ($discount->Type == 'Percent') {
-                    $discount_amount = $this->owner->Price * ($discount->DiscountTiers()->first()->Percentage / 100);
-                } elseif ($discount->Type == 'Amount') {
-                    $discount_amount = $discount->DiscountTiers()->first()->Amount;
-                }
-                $price = $this->owner->Price - $discount_amount;
-                return $price;
-            }
-        }
-        return false;
+        $list = Discount::get()->filter([
+            'StartTime:LessThanOrEqual' => date("Y-m-d H:i:s", strtotime('now')),
+            'EndTime:GreaterThanOrEqual' => date("Y-m-d H:i:s", strtotime('now')),
+        ]);
+
+        $strict = $list->filter([
+            'Products.Count():GreaterThan' => 0,
+            'Products.ID' => $this->owner->ID,
+        ]);
+
+        $global = $list->filter('Products.Count()', 0);
+
+        $this->discounts_list = Discount::get()
+            ->byIDs(array_merge(array_values($strict->column()), array_values($global->column())));
+
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getActiveDiscount()
+    private function getDiscountsList()
     {
-        $filter = [
-            'StartTime:LessThanOrEqual' => date("Y-m-d H:i:s", strtotime('now')),
-            'EndTime:GreaterThanOrEqual' => date("Y-m-d H:i:s", strtotime('now')),
-        ];
-
-        if ($this->owner->Discounts()->filter($filter)->count() > 0) {
-            foreach ($this->owner->Discounts()->filter($filter)->sort('Percentage DESC') as $discount) {
-                if ($discount->getIsActive()) {
-                    return $discount;
-                }
-            }
+        if (!$this->discounts_list) {
+            $this->setDiscountsList();
         }
 
-        foreach (Discount::get()->filter($filter)->sort('Percentage DESC') as $discount) {
-            if ($discount->getIsGlobal()) {
-                return $discount;
+        return $this->discounts_list;
+    }
+
+    /**
+     * @param int $quantity
+     * @param null $optionKey
+     * @return $this
+     */
+    public function setBestDiscount($quantity = 1, $optionKey = null)
+    {
+        /** @var HasManyList $filtered */
+        $filtered = $this->getDiscountsList()->filter('DiscountTiers.Quantity:LessThanOrEqual', $quantity);
+
+        if ($filtered->count() == 1) {
+            $this->best_discount = DiscountHelper::create($this->owner, $filtered->first(), $optionKey);
+
+            return $this;
+        }
+
+        $bestDiscount = null;
+
+        /** @var Discount $discount */
+        foreach ($filtered as $discount) {
+            if ($bestDiscount === null) {
+                $bestDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
+                continue;
             }
+
+            $testDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
+
+            $bestDiscount = (float)$bestDiscount->getDiscountedPrice() > (float)$testDiscount->getDiscountedPrice()
+                ? $testDiscount
+                : $bestDiscount;
+        }
+
+        $this->best_discount = $bestDiscount;
+
+        return $this;
+    }
+
+    /**
+     * @return DiscountHelper
+     */
+    public function getBestDiscount()
+    {
+        if (!$this->best_discount) {
+            $this->setBestDiscount();
+        }
+
+        return $this->best_discount;
+    }
+
+    /**
+     * @param int $quantity
+     * @param null $optionKey
+     * @return bool|mixed
+     */
+    public function getDiscountPrice($quantity = 1, $optionKey = null)
+    {
+        if ($discount = $this->getBestDiscount()) {
+            return $discount->getDiscountedPrice();
         }
 
         return false;
