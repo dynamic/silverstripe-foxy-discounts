@@ -47,8 +47,11 @@ class ProductDataExtension extends DataExtension
 
         $global = $list->filter('Products.Count()', 0);
 
-        $this->discounts_list = Discount::get()
-            ->byIDs(array_merge(array_values($strict->column()), array_values($global->column())));
+        $merge = array_merge(array_values($strict->column()), array_values($global->column()));
+
+        $this->discounts_list = (!empty($merge))
+            ? Discount::get()->byIDs($merge)
+            : null;
 
         return $this;
     }
@@ -73,31 +76,35 @@ class ProductDataExtension extends DataExtension
     public function setBestDiscount($quantity = 1, $optionKey = null)
     {
         /** @var HasManyList $filtered */
-        $filtered = $this->getDiscountsList()->filter('DiscountTiers.Quantity:LessThanOrEqual', $quantity);
+        if ($filtered = $this->getDiscountsList()) {
+            $filtered = $filtered->filter('DiscountTiers.Quantity:LessThanOrEqual', $quantity);
 
-        if ($filtered->count() == 1) {
-            $this->best_discount = DiscountHelper::create($this->owner, $filtered->first(), $optionKey);
+            if ($filtered->count() == 1) {
+                $this->best_discount = DiscountHelper::create($this->owner, $filtered->first(), $optionKey);
 
-            return $this;
-        }
-
-        $bestDiscount = null;
-
-        /** @var Discount $discount */
-        foreach ($filtered as $discount) {
-            if ($bestDiscount === null) {
-                $bestDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
-                continue;
+                return $this;
             }
 
-            $testDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
+            $bestDiscount = null;
 
-            $bestDiscount = (float)$bestDiscount->getDiscountedPrice() > (float)$testDiscount->getDiscountedPrice()
-                ? $testDiscount
-                : $bestDiscount;
+            /** @var Discount $discount */
+            foreach ($filtered as $discount) {
+                if ($bestDiscount === null) {
+                    $bestDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
+                    continue;
+                }
+
+                $testDiscount = DiscountHelper::create($this->owner, $discount, $optionKey);
+
+                $bestDiscount = (float)$bestDiscount->getDiscountedPrice() > (float)$testDiscount->getDiscountedPrice()
+                    ? $testDiscount
+                    : $bestDiscount;
+            }
+
+            $this->best_discount = $bestDiscount;
+        } else {
+            $this->best_discount = null;
         }
-
-        $this->best_discount = $bestDiscount;
 
         return $this;
     }
