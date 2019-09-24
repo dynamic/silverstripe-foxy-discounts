@@ -6,6 +6,8 @@ use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Model\ProductOption;
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\ORM\FieldType\DBCurrency;
+use SilverStripe\ORM\FieldType\DBField;
 
 /**
  * Class DiscountHelper
@@ -31,7 +33,7 @@ class DiscountHelper
     private $discount;
 
     /**
-     * @var
+     * @var DBField|DBCurrency
      */
     private $discounted_price;
 
@@ -143,7 +145,7 @@ class DiscountHelper
     }
 
     /**
-     * @return float|int
+     * @return DBField|DBCurrency
      */
     public function setDiscountedPrice()
     {
@@ -157,7 +159,7 @@ class DiscountHelper
             ? $price - ($price * ($tier->Percentage / 100))
             : $price - $tier->Amount;
 
-        return $this->discounted_price = $price;
+        return $this->discounted_price = DBField::create_field(DBCurrency::class, $price);
     }
 
     /**
