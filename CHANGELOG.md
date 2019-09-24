@@ -1,5 +1,16 @@
 # Change Log
 
+## [1.0.1](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.1) (2019-09-23)
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.0...1.0.1)
+
+**Fixed bugs:**
+
+- BUG getBestDiscount\(\) may carry over previous values [\#22](https://github.com/dynamic/silverstripe-foxy-discounts/issues/22)
+
+**Merged pull requests:**
+
+- BUGFIX add getHasDiscount\(\) that compares product information [\#23](https://github.com/dynamic/silverstripe-foxy-discounts/pull/23) ([muskie9](https://github.com/muskie9))
+
 ## [1.0.0](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.0) (2019-09-23)
 **Implemented enhancements:**
 
@@ -10,8 +21,8 @@
 
 **Fixed bugs:**
 
-- BUG Trigger field does not check if the trigger amount has already been entered [\#15](https://github.com/dynamic/silverstripe-foxy-discounts/issues/15)
 - BUG ProductDataExtension - getActiveDiscount\(\) sorting [\#14](https://github.com/dynamic/silverstripe-foxy-discounts/issues/14)
+- BUG Trigger field does not check if the trigger amount has already been entered [\#15](https://github.com/dynamic/silverstripe-foxy-discounts/issues/15)
 
 **Closed issues:**
 
