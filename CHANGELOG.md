@@ -1,6 +1,19 @@
 # Change Log
 
-## [1.0.1](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.1) (2019-09-23)
+## [1.0.2](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.2) (2019-09-23)
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.1...1.0.2)
+
+**Fixed bugs:**
+
+- BUG not providing discount price as DBCurrency [\#26](https://github.com/dynamic/silverstripe-foxy-discounts/issues/26)
+- BUG .standard-price reference in discount.js not strict enough [\#24](https://github.com/dynamic/silverstripe-foxy-discounts/issues/24)
+
+**Merged pull requests:**
+
+- BUGFIX $discounted\_price now DBCurrency [\#27](https://github.com/dynamic/silverstripe-foxy-discounts/pull/27) ([muskie9](https://github.com/muskie9))
+- BUGFIX look for .standard-price within the form [\#25](https://github.com/dynamic/silverstripe-foxy-discounts/pull/25) ([muskie9](https://github.com/muskie9))
+
+## [1.0.1](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.1) (2019-09-24)
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.0...1.0.1)
 
 **Fixed bugs:**
