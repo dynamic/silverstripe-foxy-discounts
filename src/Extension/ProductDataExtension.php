@@ -134,4 +134,13 @@ class ProductDataExtension extends DataExtension
 
         return false;
     }
+
+    /**
+     * @return bool
+     */
+    public function getHasDiscount()
+    {
+        return $this->getBestDiscount() instanceof DiscountHelper
+            && $this->getBestDiscount()->getProduct()->ID == $this->owner->ID;
+    }
 }
