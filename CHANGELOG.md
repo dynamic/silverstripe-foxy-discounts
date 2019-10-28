@@ -1,6 +1,13 @@
 # Change Log
 
-## [1.0.2](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.2) (2019-09-23)
+## [1.0.3](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.3) (2019-10-28)
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.2...1.0.3)
+
+**Merged pull requests:**
+
+- BUGFIX discount detection broken [\#28](https://github.com/dynamic/silverstripe-foxy-discounts/pull/28) ([muskie9](https://github.com/muskie9))
+
+## [1.0.2](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.2) (2019-09-24)
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.1...1.0.2)
 
 **Fixed bugs:**
