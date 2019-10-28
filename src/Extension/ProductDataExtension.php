@@ -114,9 +114,10 @@ class ProductDataExtension extends DataExtension
      */
     public function getBestDiscount()
     {
-        if (!$this->best_discount) {
-            $this->setBestDiscount();
-        }
+        //if (!$this->best_discount) {
+        $this->setBestDiscount();
+
+        //}
 
         return $this->best_discount;
     }
@@ -140,7 +141,17 @@ class ProductDataExtension extends DataExtension
      */
     public function getHasDiscount()
     {
-        return $this->getBestDiscount() instanceof DiscountHelper
-            && $this->getBestDiscount()->getProduct()->ID == $this->owner->ID;
+        if ($discount = $this->getBestDiscount()) {
+            $discount = $discount->getDiscount();
+
+            $restrictions = $discount->hasMethod('getRestrictions')
+                ? $discount->getRestrictions()
+                : [];
+
+            return $this->getBestDiscount() instanceof DiscountHelper
+                && (empty($restrictions) || in_array($this->owner->ID, $restrictions));
+        }
+
+        return false;
     }
 }
