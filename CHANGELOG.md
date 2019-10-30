@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.0.4](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.4) (2019-10-30)
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.3...1.0.4)
+
+**Fixed bugs:**
+
+- BUG DiscountTier::getDiscountLabel\(\) not extensible [\#29](https://github.com/dynamic/silverstripe-foxy-discounts/issues/29)
+
+**Merged pull requests:**
+
+- BUGFIX Jenkinsfile - fail test if phpcs doesn’t pass [\#32](https://github.com/dynamic/silverstripe-foxy-discounts/pull/32) ([jsirish](https://github.com/jsirish))
+- BUGFIX Travis phpcs tests [\#31](https://github.com/dynamic/silverstripe-foxy-discounts/pull/31) ([jsirish](https://github.com/jsirish))
+- BUGFIX allow extensible DiscountLabel [\#30](https://github.com/dynamic/silverstripe-foxy-discounts/pull/30) ([muskie9](https://github.com/muskie9))
+
 ## [1.0.3](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.3) (2019-10-28)
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.2...1.0.3)
 
