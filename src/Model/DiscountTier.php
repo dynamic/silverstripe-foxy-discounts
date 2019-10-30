@@ -128,10 +128,16 @@ class DiscountTier extends DataObject
     public function getDiscountLabel()
     {
         $type = $this->Discount()->Type;
+        $label = '';
+
         if ($type == 'Percent') {
-            return "{$this->Percentage}%";
+            $label = "{$this->Percentage}%";
         } elseif ($type == 'Amount') {
-            return $this->dbObject('Amount')->Nice();
+            $label = $this->dbObject('Amount')->Nice();
         }
+
+        $this->extend('updateDiscountLabel', $label);
+
+        return $label;
     }
 }
