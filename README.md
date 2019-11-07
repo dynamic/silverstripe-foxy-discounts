@@ -46,7 +46,11 @@ PageController:
   
 ```
 
-Create a data extension to add a `many_many` relation to your base product class(es):
+## Advanced Usage
+
+You can limit discounts based on Product restrictions. The example below would add a "Discount only these products" and "These products should be excluded from the discount" type of logic:
+
+*note: This example has additional requirements such as GridFieldExtension be installed* 
 
 ```php
 <?
@@ -55,30 +59,76 @@ namespace {
     use SilverStripe\ORM\DataExtension;
     use Dynamic\Products\Page\Product;
     
-    class DiscountDataExtension extends DataExtension
-    {
-        private static $many_many = [
-            'Products' => Product::class,
-        ];
-        
-        public function updateCMSFields(FieldList $fields)
-        {
-            if ($this->owner->ID) {
-                // Products
-                $field = $fields->dataFieldByName('Products');
-                $config = $field->getConfig();
-                $config
-                    ->removeComponentsByType([
-                        GridFieldAddExistingAutocompleter::class,
-                        GridFieldAddNewButton::class,
-                        GridFieldArchiveAction::class,
-                    ])
-                    ->addComponents([
-                        new GridFieldAddExistingSearchButton(),
-                    ]);
-            }
-        }
-    }
+	class DiscountDataExtension extends DataExtension
+	{
+	    /**
+	     * @var array
+	     */
+	    private static $many_many = [
+	        'Products' => Product::class,
+	        'ExcludeProducts' => Product::class,
+	    ];
+	
+	    /**
+	     * @param FieldList $fields
+	     */
+	    public function updateCMSFields(FieldList $fields)
+	    {
+	        if ($this->owner->ID) {
+	            // Products
+	            $field = $fields->dataFieldByName('Products');
+	            $fields->removeByName('Products');
+	            $fields->addFieldToTab('Root.Included', $field);
+	            $field->setDescription('Limit the discount to these products. If no products specified, all products will receive the discount');
+	            $config = $field->getConfig();
+	            $config
+	                ->removeComponentsByType([
+	                    GridFieldAddExistingAutocompleter::class,
+	                    GridFieldAddNewButton::class,
+	                    GridFieldArchiveAction::class,
+	                ])
+	                ->addComponents([
+	                    new GridFieldAddExistingSearchButton(),
+	                ]);
+	
+	            $exclusions = $fields->dataFieldByName('ExcludeProducts');
+	            $fields->removeByName('ExcludeProducts');
+	            $fields->addFieldToTab('Root.Excluded', $exclusions);
+	            $exclusions->setDescription('Products in this list will ALWAYS be excluded from the discount, even if added to the "Included" tab.');
+	            $excludeConfig = $exclusions->getConfig();
+	            $excludeConfig
+	                ->removeComponentsByType([
+	                    GridFieldAddExistingAutocompleter::class,
+	                    GridFieldAddNewButton::class,
+	                    GridFieldArchiveAction::class,
+	                ])
+	                ->addComponents([
+	                    new GridFieldAddExistingSearchButton(),
+	                ]);
+	        }
+	    }
+	
+	    /**
+	     * @return array
+	     */
+	    public function getRestrictions()
+	    {
+	        if ($this->owner->Products()->count() == 0) {
+	            $products = Product::get()->column();
+	        } else {
+	            $products = $this->Products()->column();
+	        }
+	
+	        foreach ($this->owner->ExcludeProducts()->column() as $id) {
+	            if (in_array($id, $products)) {
+	                $key = array_search($id, $products);
+	                unset($products[$key]);
+	            }
+	        }
+	
+	        return $products;
+	    }
+	}
 }       
 
 ```
