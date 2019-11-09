@@ -15,7 +15,7 @@ Offer discounts on purchase conditions for your Foxy products.
 ## Requirements
 
 * SilverStripe ^4.0
-* SilverStripe Foxy Products ^1.0
+* SilverStripe Foxy ^1.0
 
 ## Installation
 
