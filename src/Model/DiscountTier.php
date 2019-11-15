@@ -2,6 +2,7 @@
 
 namespace Dynamic\Foxy\Discounts\Model;
 
+use Dynamic\Foxy\Coupons\Model\Coupon;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataObject;
 
@@ -69,31 +70,51 @@ class DiscountTier extends DataObject
             $quantity = $fields->dataFieldByName('Quantity');
             $quantity->setTitle('Quantity to trigger discount');
 
-            $type = $this->Discount()->Type;
-            $percentage = $fields->dataFieldByName('Percentage')
-                ->setTitle('Percent discount');
-            $amount = $fields->dataFieldByName('Amount')
-                ->setTitle('Amount to discount');
+            /** @var Discount|Coupon $type */
+            if ($parent = $this->getParent()) {
+                $type = $parent->Type;
 
-            $fields->removeByName([
-                'Percentage',
-                'Amount',
-            ]);
+                $percentage = $fields->dataFieldByName('Percentage')
+                    ->setTitle('Percent discount');
+                $amount = $fields->dataFieldByName('Amount')
+                    ->setTitle('Amount to discount');
 
-            if ($type == 'Percent') {
-                $fields->addFieldToTab(
-                    'Root.Main',
-                    $percentage
-                );
-            } elseif ($type == 'Amount') {
-                $fields->addFieldToTab(
-                    'Root.Main',
-                    $amount
-                );
+                $fields->removeByName([
+                    'Percentage',
+                    'Amount',
+                ]);
+
+                if ($type == 'Percent') {
+                    $fields->addFieldToTab(
+                        'Root.Main',
+                        $percentage
+                    );
+                } elseif ($type == 'Amount') {
+                    $fields->addFieldToTab(
+                        'Root.Main',
+                        $amount
+                    );
+                }
             }
         });
 
         return parent::getCMSFields();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getParent()
+    {
+        foreach ($this->hasOne() as $relationName => $className) {
+            $field = "{$relationName}ID";
+
+            if ($this->{$field} > 0) {
+                return $className::get()->byID($this->{$field});
+            }
+        }
+
+        return false;
     }
 
     /**

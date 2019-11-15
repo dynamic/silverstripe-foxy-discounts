@@ -41,12 +41,12 @@ class PageControllerExtension extends Extension
      */
     public function updateAddToCartForm(&$form)
     {
-        $class = $this->owner->data()->ClassName;
-        if ($class::singleton()->hasMethod('getBestDiscount')) {
+        $page = $this->owner->data();
+        if ($this->getIsDiscountable($page)) {
             /** @var DiscountHelper $discount */
-            if ($discount = $this->owner->data()->getBestDiscount()) {
+            if ($discount = $page->getBestDiscount()) {
                 Requirements::javascript('dynamic/silverstripe-foxy-discounts: client/dist/javascript/discount.js');
-                $code = $this->owner->data()->Code;
+                $code = $page->Code;
                 $fields = $form->Fields();
                 $fields->push(
                     HiddenField::create(AddToCartForm::getGeneratedValue(
@@ -92,6 +92,10 @@ class PageControllerExtension extends Extension
         }
 
         if (!$product = Product::get()->byID(explode('||', $id)[0])) {
+            return;
+        }
+
+        if (!$this->getIsDiscountable($product)) {
             return;
         }
 
@@ -176,5 +180,14 @@ class PageControllerExtension extends Extension
         }
 
         return $filter;
+    }
+
+    /**
+     * @param $product
+     * @return bool
+     */
+    public function getIsDiscountable($product)
+    {
+        return $product->hasMethod('getHasDiscount') && $product->hasMethod('getBestDiscount') && $product->getHasDiscount();
     }
 }
