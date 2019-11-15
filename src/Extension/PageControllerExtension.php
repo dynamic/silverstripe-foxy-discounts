@@ -188,6 +188,8 @@ class PageControllerExtension extends Extension
      */
     public function getIsDiscountable($product)
     {
-        return $product->hasMethod('getHasDiscount') && $product->hasMethod('getBestDiscount') && $product->getHasDiscount();
+        return $product->hasMethod('getHasDiscount')
+            && $product->hasMethod('getBestDiscount')
+            && $product->getHasDiscount();
     }
 }
