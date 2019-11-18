@@ -116,7 +116,7 @@ namespace {
 	        if ($this->owner->Products()->count() == 0) {
 	            $products = Product::get()->column();
 	        } else {
-	            $products = $this->Products()->column();
+	            $products = $this->owner->Products()->column();
 	        }
 	
 	        foreach ($this->owner->ExcludeProducts()->column() as $id) {
