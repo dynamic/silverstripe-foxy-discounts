@@ -32,10 +32,6 @@ Add the following extensions to your product classes:
 
 ```yaml
 
-Dynamic\Foxy\Model\Setting:
-  extensions:
-    - Dynamic\Foxy\Discounts\Extension\FoxyAdminExtension
-
 Dynamic\Products\Page\Product:
   extensions:
     - Dynamic\Foxy\Discounts\Extension\ProductDataExtension
