@@ -56,6 +56,17 @@ class PageControllerExtension extends Extension
                     ))->setValue($this->getDiscountFieldValue())
                         ->addExtraClass('product-discount')
                 );
+
+                if ($discount->getDiscount()->EndTime) {
+                    $fields->push(
+                        HiddenField::create(AddToCartForm::getGeneratedValue(
+                            $code,
+                            'expires',
+                            strtotime($discount->getDiscount()->EndTime)
+                        ))
+                            ->setValue(strtotime($discount->getDiscount()->EndTime))
+                    );
+                }
             }
         }
     }
