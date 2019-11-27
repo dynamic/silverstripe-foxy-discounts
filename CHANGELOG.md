@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.2.0) (2019-11-27)
+
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.1.0...1.2.0)
+
+**Implemented enhancements:**
+
+- FEATURE include product expiration if there's an expiration of the discount [\#43](https://github.com/dynamic/silverstripe-foxy-discounts/issues/43)
+
 ## [1.1.0](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.1.0) (2019-11-19)
 
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.0.5...1.1.0)
@@ -7,6 +15,13 @@
 **Implemented enhancements:**
 
 - FEATURE Remove FoxyAdminExtension in favor of DiscountAdmin [\#39](https://github.com/dynamic/silverstripe-foxy-discounts/issues/39)
+- FEATURE move Discounts from Foxy admin to separate ModelAdmin [\#33](https://github.com/dynamic/silverstripe-foxy-discounts/issues/33)
+- FEATURE Don't hard code Discounts to silverstripe-products Product class [\#13](https://github.com/dynamic/silverstripe-foxy-discounts/issues/13)
+- FEATURE Discount has\_many DiscountTiers [\#3](https://github.com/dynamic/silverstripe-foxy-discounts/issues/3)
+
+**Merged pull requests:**
+
+- REFACTOR remove FoxyAdminExtension, update docs [\#40](https://github.com/dynamic/silverstripe-foxy-discounts/pull/40) ([jsirish](https://github.com/jsirish))
 
 ## [1.0.5](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.0.5) (2019-11-18)
 
@@ -14,7 +29,6 @@
 
 **Implemented enhancements:**
 
-- FEATURE move Discounts from Foxy admin to separate ModelAdmin [\#33](https://github.com/dynamic/silverstripe-foxy-discounts/issues/33)
 - DOCS allow for excluding products from discounts [\#34](https://github.com/dynamic/silverstripe-foxy-discounts/issues/34)
 
 **Fixed bugs:**
@@ -83,9 +97,7 @@
 **Implemented enhancements:**
 
 - ENHANCEMENT order total display to be configurable [\#19](https://github.com/dynamic/silverstripe-foxy-discounts/issues/19)
-- FEATURE Don't hard code Discounts to silverstripe-products Product class [\#13](https://github.com/dynamic/silverstripe-foxy-discounts/issues/13)
 - FEATURE JS to update Price in AddToCartForm based on quantity field value [\#10](https://github.com/dynamic/silverstripe-foxy-discounts/issues/10)
-- FEATURE Discount has\_many DiscountTiers [\#3](https://github.com/dynamic/silverstripe-foxy-discounts/issues/3)
 
 **Fixed bugs:**
 
