@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.2.1) (2019-11-30)
+
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.2.0...1.2.1)
+
+**Merged pull requests:**
+
+- BUGFIX check if fields exist before attempting to alter [\#45](https://github.com/dynamic/silverstripe-foxy-discounts/pull/45) ([muskie9](https://github.com/muskie9))
+
 ## [1.2.0](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.2.0) (2019-11-27)
 
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.1.0...1.2.0)
@@ -7,6 +15,10 @@
 **Implemented enhancements:**
 
 - FEATURE include product expiration if there's an expiration of the discount [\#43](https://github.com/dynamic/silverstripe-foxy-discounts/issues/43)
+
+**Merged pull requests:**
+
+- ENHANCEMENT product expiration based on discount expiration [\#44](https://github.com/dynamic/silverstripe-foxy-discounts/pull/44) ([muskie9](https://github.com/muskie9))
 
 ## [1.1.0](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.1.0) (2019-11-19)
 
