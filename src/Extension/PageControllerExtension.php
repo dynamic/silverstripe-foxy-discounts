@@ -10,6 +10,7 @@ use Dynamic\Products\Page\Product;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Extension;
 use SilverStripe\Dev\Debug;
+use SilverStripe\Forms\Form;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;
 
@@ -47,7 +48,7 @@ class PageControllerExtension extends Extension
             if ($discount = $page->getBestDiscount()) {
                 Requirements::javascript('dynamic/silverstripe-foxy-discounts: client/dist/javascript/discount.js');
                 $code = $page->Code;
-                if ($fields = $form->Fields()) {
+                if ($form instanceof Form && $fields= $form->Fields()) {
                     $fields->push(
                         HiddenField::create(AddToCartForm::getGeneratedValue(
                             $code,
