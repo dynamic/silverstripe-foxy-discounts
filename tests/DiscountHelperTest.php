@@ -1,27 +1,27 @@
 <?php
 
-namespace Dynamic\Foxy\Discounts\Tests\Model;
+namespace Dynamic\Foxy\Discounts\Tests;
 
+use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
-use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
 /**
- * Class DiscountTest
- * @package Dynamic\Foxy\Discounts\Tests\Model
+ * Class DiscountHelperTest
+ * @package Dynamic\Foxy\Discounts\Tests
  */
-class DiscountTest extends SapphireTest
+class DiscountHelperTest extends SapphireTest
 {
     /**
      * @var string[]
      */
     protected static $fixture_file = [
-        '../products.yml',
-        '../discounts.yml',
+        'products.yml',
+        'discounts.yml',
     ];
 
     /**
@@ -54,38 +54,44 @@ class DiscountTest extends SapphireTest
         $discountOne->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
         $discountTwo = $this->objFromFixture(Discount::class, 'tierdiscountpercentage');
         $discountTwo->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
+        $discountThree = $this->objFromFixture(Discount::class, 'tierdiscountamount');
+        $discountThree->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
 
         Versioned::set_stage(Versioned::LIVE);
+    }
+
+    public function testGetProduct()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals($product->ID, $helper->getProduct()->ID);
     }
 
     /**
      *
      */
-    public function testGetTierByQuantity()
+    public function testGetDiscountedPrice()
     {
-        /** @var Discount $discountOne */
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals(75, $helper->getDiscountedPrice()->getValue());
+
+        $helper->setQuantity(25);
+        $this->assertEquals(70, $helper->getDiscountedPrice()->getValue());
+
         $discountOne = $this->objFromFixture(Discount::class, 'simplediscountpercentage');
-        /** @var Discount $discountTwo */
-        $discountTwo = $this->objFromFixture(Discount::class, 'tierdiscountpercentage');
+        $discountOne->doUnpublish();
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'singletier'),
-            $discountOne->getTierByQuantity(1)->ID
-        );
+        $helper->setDiscountTier();
+        $helper->setQuantity(1);
+        $this->assertEquals(95, $helper->getDiscountedPrice()->getValue());
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitierone'),
-            $discountTwo->getTierByQuantity(1)->ID
-        );
+        $helper->setQuantity(6);
+        $this->assertEquals(88, $helper->getDiscountedPrice()->getValue());
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitiertwo'),
-            $discountTwo->getTierByQuantity(6)->ID
-        );
-
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitierthree'),
-            $discountTwo->getTierByQuantity(23)->ID
-        );
+        $helper->setQuantity(23);
+        $this->assertEquals(70, $helper->getDiscountedPrice()->getValue());
     }
 }

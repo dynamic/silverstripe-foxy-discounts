@@ -6,6 +6,8 @@ use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Model\ProductOption;
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\FieldType\DBCurrency;
 use SilverStripe\ORM\FieldType\DBField;
 
@@ -23,19 +25,15 @@ class DiscountHelper
     private $product;
 
     /**
+     * @var DataList|null
+     */
+    private $available_discounts = null;
+
+    /**
      * @var ProductOption
      */
     private $product_option;
 
-    /**
-     * @var Discount
-     */
-    private $discount;
-
-    /**
-     * @var DBField|DBCurrency
-     */
-    private $discounted_price;
 
     /**
      * @var DiscountTier
@@ -43,21 +41,31 @@ class DiscountHelper
     private $discount_tier;
 
     /**
+     * @var int
+     */
+    private $quantity;
+
+    /**
+     * @var DBField|DBCurrency
+     */
+    private $discounted_price;
+
+    /**
      * DiscountHelper constructor.
      * @param $product
      * @param $discount
+     * @param int $quantity
      * @param ProductOption|string|null $productOption
      */
-    public function __construct($product, $discount, $productOption = null)
+    public function __construct($product, $quantity = 1, $productOption = null)
     {
         $this->setProduct($product);
-        $this->setDiscount($discount);
+        $this->setQuantity($quantity);
+        $this->setDiscountTier();
 
         if ($productOption instanceof ProductOption || is_string($productOption)) {
             $this->setProductOption($productOption);
         }
-
-        $this->setDiscountedPrice();
     }
 
     /**
@@ -76,7 +84,52 @@ class DiscountHelper
     {
         $this->product = $product;
 
+        $this->setAvailableDiscounts();
+
         return $this;
+    }
+
+    /**
+     * Set the available discounts based on DiscountHelper::product
+     *
+     * @return $this
+     */
+    public function setAvailableDiscounts()
+    {
+        if (!$this->getProduct()->ExcludeFromDiscounts) {
+            $now = date("Y-m-d H:i:s", strtotime('now'));
+            //don't get discounts the product is excluded from
+            $list = Discount::get()->exclude([
+                'ExcludeProducts.ID' => $this->getProduct()->ID,
+            ])->whereAny([
+                "`StartTime` <= '{$now}' AND `EndTime` >= '{$now}'",
+                "(`StartTime` = '' OR `StartTime` IS NULL) AND (`EndTime` = '' OR `EndTime` IS NULL)",
+                "`StartTime` <= '{$now}' AND (`EndTime` = '' OR `EndTime` IS NULL)",
+                "(`StartTime` = '' OR `StartTime` IS NULL) AND `EndTime` >= '{$now}'",
+            ]);
+
+            $strict = $list->filter([
+                'Products.Count():GreaterThan' => 0,
+                'Products.ID' => $this->getProduct()->ID,
+            ]);
+
+            $global = $list->filter('Products.Count()', 0);
+
+            $merge = array_merge(array_values($strict->column()), array_values($global->column()));
+            $discounts = Discount::get()->byIDs($merge);
+
+            $this->available_discounts = $discounts->count() ? $discounts : null;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return DataList|null
+     */
+    public function getAvailableDiscounts()
+    {
+        return $this->available_discounts;
     }
 
     /**
@@ -101,33 +154,32 @@ class DiscountHelper
     }
 
     /**
-     * @return mixed
-     */
-    public function getDiscount()
-    {
-        return $this->discount;
-    }
-
-    /**
-     * @param Discount $discount
+     * @param $quantity
      * @return $this
      */
-    public function setDiscount(Discount $discount): self
+    public function setQuantity($quantity)
     {
-        $this->discount = $discount;
+        $this->quantity = $quantity;
+
+        $this->setDiscountTier();
 
         return $this;
     }
 
     /**
-     * @param int $quantity
+     * @return int
+     */
+    public function getQuantity()
+    {
+        return $this->quantity;
+    }
+
+    /**
      * @return $this
      */
-    public function setDiscountTier($quantity = 1)
+    public function setDiscountTier()
     {
-        $this->discount_tier = $this->getDiscount()->DiscountTiers()
-            ->filter('Quantity:LessThanOrEqual', $quantity)
-            ->sort('Quantity DESC')->first();
+        $this->discount_tier = $this->findBestDiscount();
 
         return $this;
     }
@@ -145,9 +197,65 @@ class DiscountHelper
     }
 
     /**
-     * @return DBField|DBCurrency
+     * @return mixed
      */
-    public function setDiscountedPrice()
+    protected function findBestDiscount()
+    {
+        $appropriateTiers = ArrayList::create();
+
+        /** @var Discount $discount */
+        foreach ($this->getAvailableDiscounts() as $discount) {
+            if ($tier = $discount->getTierByQuantity($this->getQuantity())) {
+                $appropriateTiers->push($tier);
+            }
+        }
+
+        return $this->resolveDiscountTiers($appropriateTiers);
+    }
+
+    /**
+     * @param $discountTiers
+     * @return DiscountTier|null
+     */
+    protected function resolveDiscountTiers($discountTiers)
+    {
+        if (!$discountTiers->count()) {
+            return null;
+        }
+
+        $basePrice = $this->getProduct()->Price;
+        $bestTier = null;
+        $calculatePrice = function (DiscountTier $tier) use ($basePrice) {
+            if ($tier->ParentType == 'Percent') {
+                return $basePrice - ($basePrice * ($tier->Percentage / 100));
+            } else {
+                return $basePrice - $tier->Amount;
+            }
+        };
+
+        /** @var DiscountTier $tier */
+        foreach ($discountTiers as $tier) {
+            if ($bestTier == null) {
+                $bestTier = [
+                    'price' => $calculatePrice($tier),
+                    'discountTier' => $tier,
+                ];
+                continue;
+            }
+
+            if ($calculatePrice($tier) < $bestTier['price']) {
+                $bestTier['price'] = $calculatePrice($tier);
+                $bestTier['discountTier'] = $tier;
+            }
+        }
+
+        return is_array($bestTier) && isset($bestTier['discountTier']) ? $bestTier['discountTier'] : null;
+    }
+
+    /**
+     * @return DBCurrency
+     */
+    public function getDiscountedPrice()
     {
         $price = ($this->getProductOption())
             ? $this->getProductOption()->getPrice($this->getProduct())
@@ -155,22 +263,41 @@ class DiscountHelper
 
         $tier = $this->getDiscountTier();
 
-        $price = ($this->getDiscount()->Type == 'Percent')
+        $price = ($this->getDiscountTier()->ParentType == 'Percent')
             ? $price - ($price * ($tier->Percentage / 100))
             : $price - $tier->Amount;
 
-        return $this->discounted_price = DBField::create_field(DBCurrency::class, $price);
+        return DBField::create_field(DBCurrency::class, $price);
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getDiscountedPrice()
+    public function getFoxyDiscountType()
     {
-        if (!$this->discounted_price) {
-            $this->setDiscountedPrice();
+        return $this->getDiscountTier()->ParentType == 'Percent'
+            ? 'discount_quantity_percentage'
+            : 'discount_quantity_amount';
+    }
+
+    /**
+     * @return false|string
+     */
+    public function getDiscountFieldValue()
+    {
+        if ($this->getDiscountTier()) {
+            $discount = $this->getDiscountTier()->Discount();
+            $field = $discount->Type == 'Percent' ? 'Percentage' : 'Amount';
+            $discountString = $discount->Title . '{allunits';
+
+            foreach (DiscountTier::get()->filter('DiscountID', $this->getDiscountTier()->DiscountID) as $tier) {
+                $discountString .= "|{$tier->Quantity}-{$tier->{$field}}";
+            }
+
+            $discountString .= '}';
+            return $discountString;
         }
 
-        return $this->discounted_price;
+        return false;
     }
 }
