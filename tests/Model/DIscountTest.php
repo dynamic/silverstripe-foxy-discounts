@@ -40,6 +40,9 @@ class DiscountTest extends SapphireTest
             Purchasable::class,
             ProductDataExtension::class,
         ],
+        Discount::class => [
+            TestDiscountExtension::class,
+        ],
     ];
 
     /**
