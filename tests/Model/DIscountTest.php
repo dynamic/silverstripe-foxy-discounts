@@ -5,6 +5,7 @@ namespace Dynamic\Foxy\Discounts\Tests\Model;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
+use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
 use SilverStripe\Dev\SapphireTest;
@@ -47,6 +48,8 @@ class DiscountTest extends SapphireTest
     protected function setUp()
     {
         parent::setUp();
+
+        Discount::add_extension(TestDiscountExtension::class);
 
         $product = $this->objFromFixture(ProductPage::class, 'productthree');
         $product->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);

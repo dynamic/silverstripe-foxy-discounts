@@ -7,7 +7,6 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\ORM\DataExtension;
-use Dynamic\Products\Page\Product;
 use SilverStripe\Versioned\GridFieldArchiveAction;
 use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
 
@@ -70,7 +69,7 @@ class TestDiscountExtension extends DataExtension
     public function getRestrictions()
     {
         if ($this->owner->Products()->count() == 0) {
-            $products = Product::get()->column();
+            $products = ProductPage::get()->column();
         } else {
             $products = $this->owner->Products()->column();
         }
