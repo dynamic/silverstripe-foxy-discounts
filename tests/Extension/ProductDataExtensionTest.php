@@ -54,8 +54,8 @@ class ProductDataExtensionTest extends SapphireTest
     {
         APIClient::config()->set('enable_api', false);
 
-        if (class_exists(CustomerClient::class)) {
-            CustomerClient::config()->get('foxy_sso_enabled');
+        if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
+            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->get('foxy_sso_enabled');
         }
 
         parent::setUp();

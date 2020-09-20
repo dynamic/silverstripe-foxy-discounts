@@ -9,7 +9,6 @@ use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
-use Dynamic\Foxy\SingleSignOn\Client\CustomerClient;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
@@ -54,8 +53,8 @@ class DiscountTest extends SapphireTest
     {
         APIClient::config()->set('enable_api', false);
 
-        if (class_exists(CustomerClient::class)) {
-            CustomerClient::config()->get('foxy_sso_enabled');
+        if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
+            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->get('foxy_sso_enabled');
         }
 
         parent::setUp();
