@@ -116,7 +116,7 @@ class DiscountHelper
             $global = $list->filter('Products.Count()', 0);
 
             $merge = array_merge(array_values($strict->column()), array_values($global->column()));
-            $discounts = Discount::get()->byIDs($merge);
+            $discounts = count($merge) ? Discount::get()->byIDs($merge) : ArrayList::create();
 
             $this->available_discounts = $discounts->count() ? $discounts : null;
         }
