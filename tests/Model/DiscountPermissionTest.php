@@ -2,8 +2,10 @@
 
 namespace Dynamic\Foxy\Discounts\Test\Model;
 
+use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
+use Dynamic\Foxy\SingleSignOn\Client\CustomerClient;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Security\Member;
@@ -21,6 +23,20 @@ class DiscountPermissionTest extends SapphireTest
         '../accounts.yml',
         '../discounts.yml',
     ];
+
+    /**
+     *
+     */
+    protected function setUp()
+    {
+        APIClient::config()->set('enable_api', false);
+
+        if (class_exists(CustomerClient::class)) {
+            CustomerClient::config()->get('foxy_sso_enabled');
+        }
+
+        parent::setUp();
+    }
 
     /**
      *

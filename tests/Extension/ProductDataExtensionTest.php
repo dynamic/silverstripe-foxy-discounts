@@ -2,12 +2,14 @@
 
 namespace Dynamic\Foxy\Discounts\Tests\Page;
 
+use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
+use Dynamic\Foxy\SingleSignOn\Client\CustomerClient;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
@@ -50,6 +52,12 @@ class ProductDataExtensionTest extends SapphireTest
      */
     protected function setUp()
     {
+        APIClient::config()->set('enable_api', false);
+
+        if (class_exists(CustomerClient::class)) {
+            CustomerClient::config()->get('foxy_sso_enabled');
+        }
+
         parent::setUp();
 
         $product = $this->objFromFixture(ProductPage::class, 'productthree');
@@ -90,7 +98,7 @@ class ProductDataExtensionTest extends SapphireTest
     }
 
     /**
-     *
+     * Expected failure in local tests of a foxy-recipe-installer
      */
     public function testGetHasDiscount()
     {
@@ -105,6 +113,7 @@ class ProductDataExtensionTest extends SapphireTest
         $newProduct->writeToStage(Versioned::DRAFT);
         $newProduct->publishSingle();
 
+        /** Expected failure in local tests of a foxy-recipe-installer */
         Discount::get()->each(function (Discount $discount) use ($newProduct) {
             $discount->ExcludeProducts()->add($newProduct);
         });
