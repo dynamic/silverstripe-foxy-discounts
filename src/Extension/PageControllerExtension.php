@@ -9,7 +9,6 @@ use Dynamic\Foxy\Form\AddToCartForm;
 use Dynamic\Products\Page\Product;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Extension;
-use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\View\Requirements;

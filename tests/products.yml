@@ -33,3 +33,37 @@ Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage:
     QuantityMax: 0
     ExcludeFromDiscounts: true
     FoxyCategory: =>Dynamic\Foxy\Model\FoxyCategory.altcategoryone
+  productfiveandvariations:
+    Title: 'Product Five and Variations'
+    Price: 100.00
+    Code: 'product-five-and-variations'
+    Avalailable: true
+    QuantityMax: 0
+    FoxyCategory: =>Dynamic\Foxy\Model\FoxyCategory.altcategoryone
+
+Dynamic\Foxy\Model\VariationType:
+  typeone:
+    Title: 'Variation Type One'
+
+#Dynamic\Foxy\Model\Variation:
+#  variationone:
+#    Title: 'Variation One'
+#    PriceModifier: 10
+#    PriceModifierAction: Add
+#    Available: true
+#    VariationType: =>Dynamic\Foxy\Model\VariationType.typeone
+#    Product: =>Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage.productfiveandvariations
+#  variationtwo:
+#    Title: 'Variation Two'
+#    PriceModifier: 150
+#    PriceModifierAction: Set
+#    Available: true
+#    VariationType: =>Dynamic\Foxy\Model\VariationType.typeone
+#    Product: =>Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage.productfiveandvariations
+#  variationthree:
+#    Title: 'Variation One'
+#    PriceModifier: 20
+#    PriceModifierAction: Subtract
+#    Available: true
+#    VariationType: =>Dynamic\Foxy\Model\VariationType.typeone
+#    Product: =>Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage.productfiveandvariations

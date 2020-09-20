@@ -4,7 +4,7 @@ namespace Dynamic\Foxy\Discounts;
 
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
-use Dynamic\Foxy\Model\ProductOption;
+use Dynamic\Foxy\Model\Variation;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
@@ -30,9 +30,9 @@ class DiscountHelper
     private $available_discounts = null;
 
     /**
-     * @var ProductOption
+     * @var Variation
      */
-    private $product_option;
+    private $variation;
 
 
     /**
@@ -53,18 +53,17 @@ class DiscountHelper
     /**
      * DiscountHelper constructor.
      * @param $product
-     * @param $discount
      * @param int $quantity
-     * @param ProductOption|string|null $productOption
+     * @param Variation|null $variation
      */
-    public function __construct($product, $quantity = 1, $productOption = null)
+    public function __construct($product, $quantity = 1, $variation = null)
     {
         $this->setProduct($product);
         $this->setQuantity($quantity);
         $this->setDiscountTier();
 
-        if ($productOption instanceof ProductOption || is_string($productOption)) {
-            $this->setProductOption($productOption);
+        if ($variation instanceof Variation) {
+            $this->setVariation($variation);
         }
     }
 
@@ -132,24 +131,24 @@ class DiscountHelper
     }
 
     /**
-     * @return mixed
+     * @param Variation $variation
+     * @return $this
      */
-    public function getProductOption()
+    public function setVariation($variation): self
     {
-        return $this->product_option;
+        $this->variation = ($variation instanceof Variation)
+            ? $variation
+            : $this->getProduct()->Variations()->filter('', $variation)->first();//TODO fix this string thing, is it needed?
+
+        return $this;
     }
 
     /**
-     * @param ProductOption $productOption
-     * @return $this
+     * @return mixed
      */
-    public function setProductOption($productOption): self
+    public function getVariation()
     {
-        $this->product_option = ($productOption instanceof ProductOption)
-            ? $productOption
-            : $this->getProduct()->Options()->filter('OptionModifierKey', $productOption)->first();
-
-        return $this;
+        return $this->variation;
     }
 
     /**
@@ -260,8 +259,8 @@ class DiscountHelper
      */
     public function getDiscountedPrice()
     {
-        $price = ($this->getProductOption())
-            ? $this->getProductOption()->getPrice($this->getProduct())
+        $price = ($this->getVariation())
+            ? $this->getVariation()->FinalPrice
             : $this->getProduct()->Price;
 
         $tier = $this->getDiscountTier();

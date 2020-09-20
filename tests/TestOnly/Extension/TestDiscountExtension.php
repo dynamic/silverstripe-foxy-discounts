@@ -3,6 +3,7 @@
 namespace Dynamic\Foxy\Discounts\Tests\TestOnly\Extension;
 
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
+use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 use SilverStripe\Forms\GridField\GridFieldAddNewButton;
@@ -14,7 +15,7 @@ use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
  * Class TestDiscountExtension
  * @package Dynamic\Foxy\Discounts\Tests\TestOnly\Extension
  */
-class TestDiscountExtension extends DataExtension
+class TestDiscountExtension extends DataExtension implements TestOnly
 {
     /**
      * @var array

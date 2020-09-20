@@ -4,6 +4,7 @@ namespace Dynamic\Foxy\Discounts\Tests\TestOnly\Page;
 
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Extension\Purchasable;
+use Dynamic\Foxy\Model\Variation;
 use SilverStripe\Dev\TestOnly;
 
 /**
@@ -23,5 +24,12 @@ class ProductPage extends \Page implements TestOnly
     private static $extensions = [
         Purchasable::class,
         ProductDataExtension::class,
+    ];
+
+    /**
+     * @var string[]
+     */
+    private static $has_many = [
+        'Variations' => Variation::class,
     ];
 }

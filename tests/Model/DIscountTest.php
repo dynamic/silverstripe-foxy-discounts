@@ -7,8 +7,11 @@ use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
+use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\VariationDataExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
+use Dynamic\Foxy\Model\Variation;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
@@ -44,6 +47,10 @@ class DiscountTest extends SapphireTest
         Discount::class => [
             TestDiscountExtension::class,
         ],
+        Variation::class => [
+            VariationDataExtension::class,
+        ],
+
     ];
 
     /**
@@ -52,14 +59,11 @@ class DiscountTest extends SapphireTest
     protected function setUp()
     {
         APIClient::config()->set('enable_api', false);
-
         if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
-            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->set('foxy_sso_enabled', false);
+            Config::modify()->set('Dynamic\Foxy\SingleSignOn\Client\CustomerClient', 'foxy_sso_enabled', false);
         }
 
         parent::setUp();
-
-        Discount::add_extension(TestDiscountExtension::class);
 
         $product = $this->objFromFixture(ProductPage::class, 'productthree');
         $product->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);

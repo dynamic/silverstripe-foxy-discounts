@@ -4,6 +4,7 @@ namespace Dynamic\Foxy\Discounts\Test\Model;
 
 use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\Model\Discount;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Security\Member;
@@ -28,9 +29,8 @@ class DiscountPermissionTest extends SapphireTest
     protected function setUp()
     {
         APIClient::config()->set('enable_api', false);
-
         if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
-            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->set('foxy_sso_enabled', false);
+            Config::modify()->set('Dynamic\Foxy\SingleSignOn\Client\CustomerClient', 'foxy_sso_enabled', false);
         }
 
         parent::setUp();
