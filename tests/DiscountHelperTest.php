@@ -2,6 +2,7 @@
 
 namespace Dynamic\Foxy\Discounts\Tests;
 
+use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
@@ -50,6 +51,12 @@ class DiscountHelperTest extends SapphireTest
      */
     protected function setUp()
     {
+        APIClient::config()->set('enable_api', false);
+
+        if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
+            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->set('foxy_sso_enabled', false);
+        }
+
         parent::setUp();
 
         Discount::add_extension(TestDiscountExtension::class);
