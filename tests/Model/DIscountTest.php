@@ -58,9 +58,11 @@ class DiscountTest extends SapphireTest
      */
     protected function setUp()
     {
-        APIClient::config()->set('enable_api', false);
-        if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
-            Config::modify()->set('Dynamic\Foxy\SingleSignOn\Client\CustomerClient', 'foxy_sso_enabled', false);
+        if (class_exists('Dynamic\\Foxy\\API\\Client\\APIClient')) {
+            Config::modify()->set('Dynamic\\Foxy\\API\\Client\\APIClient', 'enable_api', false);
+        }
+        if (class_exists('Dynamic\\Foxy\\SingleSignOn\\Client\\CustomerClient')) {
+            Config::modify()->set('Dynamic\\Foxy\\SingleSignOn\\Client\\CustomerClient', 'foxy_sso_enabled', false);
         }
 
         parent::setUp();
