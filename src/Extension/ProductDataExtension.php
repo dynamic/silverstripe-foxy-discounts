@@ -64,6 +64,10 @@ class ProductDataExtension extends DataExtension
      */
     public function getHasDiscount()
     {
-        return $this->getBestDiscount()->getDiscountTier() instanceof DiscountTier;
+        if ($discount = $this->getBestDiscount()) {
+            return $discount->getDiscountTier() instanceof DiscountTier;
+        }
+
+        return false;
     }
 }
