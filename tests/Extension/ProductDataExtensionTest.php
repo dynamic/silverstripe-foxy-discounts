@@ -5,6 +5,7 @@ namespace Dynamic\Foxy\Discounts\Tests\Page;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
+use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
 use Dynamic\Foxy\Extension\Purchasable;
 use SilverStripe\Dev\SapphireTest;
@@ -38,6 +39,9 @@ class ProductDataExtensionTest extends SapphireTest
         ProductPage::class => [
             Purchasable::class,
             ProductDataExtension::class,
+        ],
+        Discount::class => [
+            TestDiscountExtension::class,
         ],
     ];
 

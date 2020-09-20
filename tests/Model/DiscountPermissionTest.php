@@ -25,16 +25,6 @@ class DiscountPermissionTest extends SapphireTest
     /**
      *
      */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        Discount::add_extension(TestDiscountExtension::class);
-    }
-
-    /**
-     *
-     */
     public function testGetCMSFields()
     {
         $object = $this->objFromFixture(Discount::class, 'simplediscountpercentage');
