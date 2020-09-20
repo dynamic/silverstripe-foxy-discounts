@@ -30,7 +30,7 @@ class DiscountPermissionTest extends SapphireTest
         APIClient::config()->set('enable_api', false);
 
         if (class_exists('Dynamic\Foxy\SingleSignOn\Client\CustomerClient')) {
-            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->get('foxy_sso_enabled');
+            Dynamic\Foxy\SingleSignOn\Client\CustomerClient::config()->set('foxy_sso_enabled', false);
         }
 
         parent::setUp();
