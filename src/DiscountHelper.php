@@ -159,6 +159,10 @@ class DiscountHelper
      */
     public function setQuantity($quantity)
     {
+        if ($quantity < 1) {
+            user_error("\$quantity must be at least 1");
+        }
+
         $this->quantity = $quantity;
 
         $this->setDiscountTier();
