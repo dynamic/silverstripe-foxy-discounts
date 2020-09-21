@@ -10,6 +10,8 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\FieldType\DBCurrency;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 
 /**
  * Class DiscountHelper
@@ -106,6 +108,18 @@ class DiscountHelper
                 "`StartTime` <= '{$now}' AND (`EndTime` = '' OR `EndTime` IS NULL)",
                 "(`StartTime` = '' OR `StartTime` IS NULL) AND `EndTime` >= '{$now}'",
             ]);
+
+            $customerDiscountIDs = Member::get()->filter('DiscountID:GreaterThan', 0);
+
+            if ($member = Security::getCurrentUser()) {
+                $customerDiscountIDs = $customerDiscountIDs->exclude('ID', $member->ID);
+            }
+
+            $customerDiscountIDs = $customerDiscountIDs->column('DiscountID');
+
+            if (count($customerDiscountIDs)) {
+                $list = $list->exclude('ID', $customerDiscountIDs);
+            }
 
             $strict = $list->filter([
                 'Products.Count():GreaterThan' => 0,

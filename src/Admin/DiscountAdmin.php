@@ -4,6 +4,8 @@ namespace Dynamic\Foxy\Discounts\Admin;
 
 use Dynamic\Foxy\Discounts\Model\Discount;
 use SilverStripe\Admin\ModelAdmin;
+use SilverStripe\ORM\DataList;
+use SilverStripe\Security\Member;
 
 /**
  * Class DiscountAdmin
@@ -27,4 +29,20 @@ class DiscountAdmin extends ModelAdmin
      * @var string
      */
     private static $menu_title = 'Discounts';
+
+    /**
+     * @return DataList
+     */
+    public function getList()
+    {
+        $list = parent::getList();
+
+        $excludeIDs = Member::get()->columnUnique('DiscountID');
+
+        if (count($excludeIDs)) {
+            $list = $list->exclude('ID', $excludeIDs);
+        }
+
+        return $list;
+    }
 }

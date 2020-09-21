@@ -73,6 +73,7 @@ class DiscountTier extends DataObject
         $this->beforeUpdateCMSFields(function (FieldList $fields) {
             $fields->removeByName([
                 'DiscountID',
+                'ParentType',
             ]);
 
             $quantity = $fields->dataFieldByName('Quantity');
