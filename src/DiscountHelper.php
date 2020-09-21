@@ -30,9 +30,9 @@ class DiscountHelper
     private $available_discounts = null;
 
     /**
-     * @var Variation
+     * @var Variation|null
      */
-    private $variation;
+    private $variation = null;
 
 
     /**
@@ -136,9 +136,13 @@ class DiscountHelper
      */
     public function setVariation($variation): self
     {
-        $this->variation = ($variation instanceof Variation)
-            ? $variation
-            : $this->getProduct()->Variations()->filter('', $variation)->first();//TODO fix this string thing, is it needed?
+        if (!$variation instanceof Variation) {
+            if (is_int($variation) && ($variation = $this->getProduct()->Variations()->byID($variation))) {
+                $this->variation = $variation;
+            }
+        } else {
+            $this->variation = $variation;
+        }
 
         return $this;
     }

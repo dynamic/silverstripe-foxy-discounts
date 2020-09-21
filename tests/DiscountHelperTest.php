@@ -54,6 +54,15 @@ class DiscountHelperTest extends SapphireTest
     ];
 
     /**
+     * @var string[]
+     */
+    protected static $illegal_extensions = [
+        Discount::class => [
+            'Dynamic\\FoxyRecipe\\Extension\\DiscountDataExtension',
+        ],
+    ];
+
+    /**
      *
      */
     protected function setUp()

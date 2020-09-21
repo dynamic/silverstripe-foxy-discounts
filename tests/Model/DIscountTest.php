@@ -2,7 +2,6 @@
 
 namespace Dynamic\Foxy\Discounts\Tests\Model;
 
-use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
@@ -51,6 +50,15 @@ class DiscountTest extends SapphireTest
             VariationDataExtension::class,
         ],
 
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected static $illegal_extensions = [
+        Discount::class => [
+            'Dynamic\\FoxyRecipe\\Extension\\DiscountDataExtension',
+        ],
     ];
 
     /**
