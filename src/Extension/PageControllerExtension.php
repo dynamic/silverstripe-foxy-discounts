@@ -37,36 +37,63 @@ class PageControllerExtension extends Extension
     ];
 
     /**
+     * @var DiscountHelper|null
+     */
+    private $discount_helper = null;
+
+    /**
+     * @return $this
+     */
+    protected function setDiscountHelper()
+    {
+        if ($this->getIsDiscountable($this->owner->data())) {
+            $this->discount_helper = $this->owner->data()->getBestDiscount();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return DiscountHelper|null
+     */
+    protected function getDiscountHelper()
+    {
+        if (!$this->discount_helper) {
+            $this->setDiscountHelper();
+        }
+
+        return $this->discount_helper;
+    }
+
+    /**
      * @param $form
      */
     public function updateAddToCartForm(&$form)
     {
         $page = $this->owner->data();
-        if ($this->getIsDiscountable($page)) {
-            /** @var DiscountHelper $discount */
-            if ($discount = $page->getBestDiscount()) {
-                Requirements::javascript('dynamic/silverstripe-foxy-discounts: client/dist/javascript/discount.js');
-                $code = $page->Code;
-                if ($form instanceof Form && $fields= $form->Fields()) {
+        /** @var DiscountHelper $discount */
+        if ($discount = $this->getDiscountHelper()) {
+            Requirements::javascript('dynamic/silverstripe-foxy-discounts: client/dist/javascript/discount.js');
+            $code = $page->Code;
+            if ($form instanceof Form && ($fields = $form->Fields())) {
+                $fields->push(
+                    HiddenField::create(AddToCartForm::getGeneratedValue(
+                        $code,
+                        $discount->getFoxyDiscountType(),
+                        $discount->getDiscountFieldValue()
+                    ))->setValue($this->getDiscountFieldValue())
+                        ->addExtraClass('product-discount')
+                );
+
+                if ($endTime = $discount->getDiscountTier()->Discount()->EndTime) {
                     $fields->push(
                         HiddenField::create(AddToCartForm::getGeneratedValue(
                             $code,
-                            $discount->getDiscount()->getDiscountType(),
-                            $this->getDiscountFieldValue()
-                        ))->setValue($this->getDiscountFieldValue())
-                            ->addExtraClass('product-discount')
+                            'expires',
+                            strtotime($endTime)
+                        ))
+                            ->setValue(strtotime($endTime))
                     );
-
-                    if ($discount->getDiscount()->EndTime) {
-                        $fields->push(
-                            HiddenField::create(AddToCartForm::getGeneratedValue(
-                                $code,
-                                'expires',
-                                strtotime($discount->getDiscount()->EndTime)
-                            ))
-                                ->setValue(strtotime($discount->getDiscount()->EndTime))
-                        );
-                    }
                 }
             }
         }
@@ -78,20 +105,8 @@ class PageControllerExtension extends Extension
     public function getDiscountFieldValue()
     {
         /** @var Discount $discount */
-        if ($discount = $this->owner->data()->getBestDiscount()->getDiscount()) {
-            $tiers = $discount->DiscountTiers();
-            $bulkString = '';
-            foreach ($tiers as $tier) {
-                if ($discount->Type == 'Percent') {
-                    $bulkString .= "|{$tier->Quantity}-{$tier->Percentage}";
-                    $method = 'allunits';
-                } elseif ($discount->Type == 'Amount') {
-                    $bulkString .= "|{$tier->Quantity}-{$tier->Amount}";
-                    $method = 'allunits';
-                }
-            }
-
-            return "{$discount->Title}{{$method}{$bulkString}}";
+        if ($discount = $this->getDiscountHelper()) {
+            return $this->getDiscountHelper()->getDiscountFieldValue();
         }
 
         return false;
@@ -142,38 +157,9 @@ class PageControllerExtension extends Extension
                     break;
             }
         }
-
-        $discount = $this->getDiscount($quantity);
-
-        if ($discount instanceof DiscountTier && $discount->exists()) {
-            if ($discount->Discount()->Type == 'Percent') {
-                $discountAmount = $cost * ($discount->Percentage / 100);
-            } elseif ($discount->Discount()->Type == 'Amount') {
-                $discountAmount = $discount->Amount;
-            }
-
-            if (isset($discountAmount)) {
-                $cost = $cost - $discountAmount;
-            }
-        }
-
-        return $cost;
-    }
-
-    /**
-     * @param $quantity
-     * @return mixed
-     */
-    protected function getDiscount($quantity)
-    {
-        /** @var DiscountHelper $best */
-        $best = $this->owner->data()->getBestDiscount();
-
-        $best->setDiscountTier($quantity);
-
-        $tier = $best->getDiscountTier();
-
-        return $tier;
+        return $this->getDiscountHelper() instanceof DiscountHelper
+            ? $cost - $this->getDiscountHelper()->getDiscountedPrice()->getValue()
+            : $cost;
     }
 
     /**
