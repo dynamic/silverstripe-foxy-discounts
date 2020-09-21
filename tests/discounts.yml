@@ -1,0 +1,41 @@
+Dynamic\Foxy\Discounts\Model\Discount:
+  simplediscountpercentage:
+    Title: 'Unrestricted Discount'
+    Type: Percent
+  tierdiscountpercentage:
+    Title: 'Unrestricted Discount Tiered Percentage'
+    Type: Percent
+  tierdiscountamount:
+    Title: "Unrestricted Discount Tiered Amount"
+    Type: Amount
+
+
+Dynamic\Foxy\Discounts\Model\DiscountTier:
+  singletier:
+    Quantity: 1
+    Percentage: 25
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.simplediscountpercentage
+  multitierone:
+    Quantity: 1
+    Percentage: 5
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountpercentage
+  multitiertwo:
+    Quantity: 5
+    Percentage: 10
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountpercentage
+  multitierthree:
+    Quantity: 20
+    Percentage: 30
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountpercentage
+  multitieroneamount:
+    Quantity: 1
+    Amount: 2
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountamount
+  multitiertwoamount:
+    Quantity: 5
+    Amount: 12
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountamount
+  multitierthreeamount:
+    Quantity: 20
+    Amount: 25
+    Discount: =>Dynamic\Foxy\Discounts\Model\Discount.tierdiscountamount

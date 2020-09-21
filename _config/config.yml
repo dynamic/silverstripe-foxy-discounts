@@ -1,3 +1,6 @@
 ---
 name: silverstripe-foxy-discounts-config
 ---
+SilverStripe\Security\Member:
+  extensions:
+    - Dynamic\Foxy\Discounts\Extension\MemberExtension

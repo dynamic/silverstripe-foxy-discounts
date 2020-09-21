@@ -8,12 +8,20 @@ use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\HasManyList;
+use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Permission;
 use SilverStripe\Versioned\Versioned;
 
 /**
  * Class Discount
  * @package Dynamic\Foxy\Discounts\Model
+ *
+ * @property string $Title
+ * @property string $StartTime
+ * @property string $EndTime
+ * @property string $Type
+ * @method HasManyList DiscountTiers()
  */
 class Discount extends DataObject
 {
@@ -127,6 +135,20 @@ class Discount extends DataObject
     }
 
     /**
+     * @throws ValidationException
+     */
+    public function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        if ($this->isChanged('Type')) {
+            $this->DiscountTiers()->each(function (DiscountTier $tier) {
+                $tier->write();
+            });
+        }
+    }
+
+    /**
      * @return bool
      */
     public function getIsActive()
@@ -205,6 +227,7 @@ class Discount extends DataObject
             return $extended;
         }
 
+
         return Permission::check('CMS_ACCESS', 'any', $member);
     }
 
@@ -224,5 +247,15 @@ class Discount extends DataObject
         }
 
         return Permission::check('CMS_ACCESS', 'any', $member);
+    }
+
+    /**
+     * @param int $quantity
+     * @return DataObject|null
+     */
+    public function getTierByQuantity($quantity = 1)
+    {
+        $sort = $this->Type == 'Percent' ? 'Percentage DESC' : 'Amount DESC';
+        return $this->DiscountTiers()->filter('Quantity:LessThanOrEqual', $quantity)->sort($sort)->first();
     }
 }

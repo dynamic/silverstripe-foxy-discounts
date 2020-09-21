@@ -1,10 +1,10 @@
 <?php
 
-namespace Dynamic\Foxy\Discounts\Tests\Model;
+namespace Dynamic\Foxy\Discounts\Tests\Page;
 
+use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
-use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\VariationDataExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
@@ -15,10 +15,10 @@ use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
 /**
- * Class DiscountTest
- * @package Dynamic\Foxy\Discounts\Tests\Model
+ * Class ProductPageDiscountTest
+ * @package Dynamic\Foxy\Discounts\Tests\Page
  */
-class DiscountTest extends SapphireTest
+class ProductDataExtensionTest extends SapphireTest
 {
     /**
      * @var string[]
@@ -88,31 +88,51 @@ class DiscountTest extends SapphireTest
     /**
      *
      */
-    public function testGetTierByQuantity()
+    public function testGetBestDiscount()
     {
-        /** @var Discount $discountOne */
+        $product = $product = $this->objFromFixture(ProductPage::class, 'productthree');
+
+        $this->assertInstanceOf(DiscountHelper::class, $product->getBestDiscount());
+
+        //TODO test user_error for a 0 value
+    }
+
+    /**
+     *
+     */
+    public function testGetDiscountPrice()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+
+        $this->assertEquals(75, $product->getDiscountPrice()->getValue());
+
         $discountOne = $this->objFromFixture(Discount::class, 'simplediscountpercentage');
-        /** @var Discount $discountTwo */
-        $discountTwo = $this->objFromFixture(Discount::class, 'tierdiscountpercentage');
+        $discountOne->doUnpublish();
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'singletier'),
-            $discountOne->getTierByQuantity(1)->ID
-        );
+        $this->assertEquals(70, $product->getDiscountPrice(23)->getValue());
+    }
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitierone'),
-            $discountTwo->getTierByQuantity(1)->ID
-        );
+    /**
+     * Expected failure in local tests of a foxy-recipe-installer
+     */
+    public function testGetHasDiscount()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitiertwo'),
-            $discountTwo->getTierByQuantity(6)->ID
-        );
+        $this->assertTrue($product->getHasDiscount());
 
-        $this->assertEquals(
-            $this->idFromFixture(DiscountTier::class, 'multitierthree'),
-            $discountTwo->getTierByQuantity(23)->ID
-        );
+        $newProduct = ProductPage::create();
+        $newProduct->Title = 'No Discount Product';
+        $newProduct->Code = 'no-discount-product';
+        $newProduct->Price = 1000;
+        $newProduct->writeToStage(Versioned::DRAFT);
+        $newProduct->publishSingle();
+
+        /** Expected failure in local tests of a foxy-recipe-installer */
+        Discount::get()->each(function (Discount $discount) use ($newProduct) {
+            $discount->ExcludeProducts()->add($newProduct);
+        });
+
+        $this->assertFalse($newProduct->getHasDiscount());
     }
 }

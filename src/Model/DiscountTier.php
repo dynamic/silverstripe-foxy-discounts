@@ -9,6 +9,13 @@ use SilverStripe\ORM\DataObject;
 /**
  * Class DiscountTier
  * @package Dynamic\Foxy\Discounts\Model
+ *
+ * @property string $ParentType Save the parent Discount's type so we don't need to run a query
+ * @property int $Quantity
+ * @property int $Percentage
+ * @property float $Amount
+ * @property int $DiscountID
+ * @method Discount Discount()
  */
 class DiscountTier extends DataObject
 {
@@ -16,6 +23,7 @@ class DiscountTier extends DataObject
      * @var array
      */
     private static $db = [
+        'ParentType' => 'Varchar',
         'Quantity' => 'Int',
         'Percentage' => 'Int',
         'Amount' => 'Currency',
@@ -101,6 +109,13 @@ class DiscountTier extends DataObject
         return parent::getCMSFields();
     }
 
+    protected function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
+
+        $this->ParentType = $this->Discount()->Type;
+    }
+
     /**
      * @return string
      */
@@ -148,12 +163,11 @@ class DiscountTier extends DataObject
      */
     public function getDiscountLabel()
     {
-        $type = $this->Discount()->Type;
         $label = '';
 
-        if ($type == 'Percent') {
+        if ($this->ParentType == 'Percent') {
             $label = "{$this->Percentage}%";
-        } elseif ($type == 'Amount') {
+        } elseif ($this->ParentType == 'Amount') {
             $label = $this->dbObject('Amount')->Nice();
         }
 
