@@ -5,6 +5,7 @@ namespace Dynamic\Foxy\Discounts\Tests;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
+use Dynamic\Foxy\Discounts\Model\DiscountTier;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\TestDiscountExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Extension\VariationDataExtension;
 use Dynamic\Foxy\Discounts\Tests\TestOnly\Page\ProductPage;
@@ -13,6 +14,8 @@ use Dynamic\Foxy\Model\Variation;
 use Dynamic\Foxy\Model\VariationType;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;
+use SilverStripe\ORM\ValidationException;
+use SilverStripe\Security\Member;
 use SilverStripe\Versioned\Versioned;
 
 /**
@@ -27,6 +30,7 @@ class DiscountHelperTest extends SapphireTest
     protected static $fixture_file = [
         'products.yml',
         'discounts.yml',
+        'accounts.yml',
     ];
 
     /**
@@ -223,5 +227,43 @@ class DiscountHelperTest extends SapphireTest
             'Unrestricted Discount Tiered Percentage{allunits|1-5|5-10|20-30}',
             $newHelper->getDiscountFieldValue()
         );
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testMemberDiscount()
+    {
+        /** @var Member $customer */
+        $customer = $this->objFromFixture(Member::class, 'default');
+        $alternateCustomer = $this->objFromFixture(Member::class, 'site-owner');
+
+        $customerDiscount = Discount::create();
+        $customerDiscount->Title = 'Amazing Customer Discount';
+        $customerDiscount->Type = 'Percent';
+        $customerDiscount->writeToStage(Versioned::DRAFT);
+        $customerDiscount->publishSingle();
+
+        $cdTier = DiscountTier::create();
+        $cdTier->ParentType = $customerDiscount->Type;
+        $cdTier->Quantity = 1;
+        $cdTier->Percentage = 90;
+        $cdTier->DiscountID = $customerDiscount->ID;
+        $cdTier->write();
+
+        $customer->DiscountID = $customerDiscount->ID;
+        $customerDiscount->write();
+
+        $this->logInAs($customer);
+
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals(10, $helper->getDiscountedPrice()->getValue());
+
+        $this->logInAs($alternateCustomer);
+        $newHelper = DiscountHelper::create($product);
+
+        $this->assertEquals(75, $newHelper->getDiscountedPrice()->getValue());
     }
 }
