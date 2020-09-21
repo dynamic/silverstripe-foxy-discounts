@@ -266,4 +266,23 @@ class DiscountHelperTest extends SapphireTest
 
         $this->assertEquals(75, $newHelper->getDiscountedPrice()->getValue());
     }
+
+    /**
+     *
+     */
+    public function testExcludeProductFromDiscounts()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertInstanceOf(DiscountTier::class, $helper->getDiscountTier());
+
+        $product->ExcludeFromDiscounts = true;
+        $product->writeToStage(Versioned::DRAFT);
+        $product->publishSingle();
+
+        $newHelper = DiscountHelper::create($product);
+
+        $this->assertNull($newHelper->getDiscountTier());
+    }
 }
