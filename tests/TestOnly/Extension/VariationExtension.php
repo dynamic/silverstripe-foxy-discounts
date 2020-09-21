@@ -18,4 +18,3 @@ class VariationDataExtension extends DataExtension implements TestOnly
         'Product' => ProductPage::class,
     ];
 }
-
