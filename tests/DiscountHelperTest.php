@@ -2,7 +2,6 @@
 
 namespace Dynamic\Foxy\Discounts\Tests;
 
-use Dynamic\Foxy\API\Client\APIClient;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Extension\ProductDataExtension;
 use Dynamic\Foxy\Discounts\Model\Discount;
@@ -57,9 +56,9 @@ class DiscountHelperTest extends SapphireTest
      * @var string[]
      */
     protected static $illegal_extensions = [
-        Discount::class => [
+        /*Discount::class => [
             'Dynamic\\FoxyRecipe\\Extension\\DiscountDataExtension',
-        ],
+        ],//*/
     ];
 
     /**
@@ -181,6 +180,48 @@ class DiscountHelperTest extends SapphireTest
         $this->assertEquals(
             60,
             DiscountHelper::create($product, 1, $variationThree)->getDiscountedPrice()->getValue()
+        );
+    }
+
+    /**
+     *
+     */
+    public function testGetFoxyDiscountType()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals('discount_quantity_percentage', $helper->getFoxyDiscountType());
+
+        $discountOne = $this->objFromFixture(Discount::class, 'simplediscountpercentage');
+        $discountTwo = $this->objFromFixture(Discount::class, 'tierdiscountpercentage');
+
+        $discountOne->doUnpublish();
+        $discountTwo->doUnpublish();
+
+        $newHelper = DiscountHelper::create($product);
+
+        $this->assertEquals('discount_quantity_amount', $newHelper->getFoxyDiscountType());
+    }
+
+    /**
+     *
+     */
+    public function testGetDiscountFieldValue()
+    {
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals("Unrestricted Discount{allunits|1-25}", $helper->getDiscountFieldValue());
+
+        $discountOne = $this->objFromFixture(Discount::class, 'simplediscountpercentage');
+        $discountOne->doUnpublish();
+
+        $newHelper = DiscountHelper::create($product);
+
+        $this->assertEquals(
+            'Unrestricted Discount Tiered Percentage{allunits|1-5|5-10|20-30}',
+            $newHelper->getDiscountFieldValue()
         );
     }
 }
