@@ -37,6 +37,8 @@ class ProductDataExtension extends DataExtension
      */
     public function updateCMSFields(FieldList $fields)
     {
+        $descrip = 'Allows, or disallows if this product can be discounted globally. This overrides all other settings.';
+
         $fields->addFieldToTab(
             'Root.Ecommerce',
             DropdownField::create('ExcludeFromDiscounts')
@@ -45,7 +47,7 @@ class ProductDataExtension extends DataExtension
                     true => 'Can\'t be discounted',
                 ])
                 ->setTitle('Can this product be discounted?')
-                ->setDescription('Allows, or disallows if this product can be discounted globally. This overrides all other settings.'),
+                ->setDescription($descrip),
             'Price'
         );
     }
