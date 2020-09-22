@@ -5,14 +5,16 @@ namespace Dynamic\Foxy\Discounts\Extension;
 use Dynamic\Foxy\Discounts\DiscountHelper;
 use Dynamic\Foxy\Discounts\Model\Discount;
 use Dynamic\Foxy\Discounts\Model\DiscountTier;
+use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\FieldType\DBCurrency;
-use SilverStripe\ORM\HasManyList;
 
 /**
  * Class ProductDataExtension
  * @package Dynamic\Foxy\Discounts\Extension
+ *
+ * @property bool $ExlcludedFromDiscounts
  */
 class ProductDataExtension extends DataExtension
 {
@@ -20,7 +22,7 @@ class ProductDataExtension extends DataExtension
      * @var string[]
      */
     private static $db = [
-        //'ExcludeFromDiscounts' => 'Boolean',
+        'ExcludeFromDiscounts' => 'Boolean',
     ];
 
     /**
@@ -30,11 +32,24 @@ class ProductDataExtension extends DataExtension
         'Discounts' => Discount::class,
     ];
 
+    /**
+     * @param FieldList $fields
+     */
     public function updateCMSFields(FieldList $fields)
     {
-        /*$fields->addFieldToTab(
-            'Root.'
-        );//*/
+        $desc = 'Allows, or disallows if this product can be discounted globally. This overrides all other settings.';
+
+        $fields->addFieldToTab(
+            'Root.Ecommerce',
+            DropdownField::create('ExcludeFromDiscounts')
+                ->setSource([
+                    false => 'Can be discounted',
+                    true => 'Can\'t be discounted',
+                ])
+                ->setTitle('Can this product be discounted?')
+                ->setDescription($desc),
+            'Price'
+        );
     }
 
     /**

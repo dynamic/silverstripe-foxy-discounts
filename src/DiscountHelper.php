@@ -131,6 +131,8 @@ class DiscountHelper
             $merge = array_merge(array_values($strict->column()), array_values($global->column()));
 
             $this->available_discounts = count($merge) ? Discount::get()->byIDs($merge) : ArrayList::create();
+        } else {
+            $this->available_discounts = ArrayList::create();
         }
 
         return $this;
