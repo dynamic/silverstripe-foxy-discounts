@@ -285,4 +285,59 @@ class DiscountHelperTest extends SapphireTest
 
         $this->assertNull($newHelper->getDiscountTier());
     }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testMemberDiscountMultipleMembers()
+    {
+        /** @var Member $customer */
+        $customer = $this->objFromFixture(Member::class, 'default');
+        /** @var Member $alternateCustomer */
+        $alternateCustomer = $this->objFromFixture(Member::class, 'site-owner');
+
+        $customerDiscount = Discount::create();
+        $customerDiscount->Title = 'Amazing Customer Discount';
+        $customerDiscount->Type = 'Percent';
+        $customerDiscount->writeToStage(Versioned::DRAFT);
+        $customerDiscount->publishSingle();
+
+        $cdTier = DiscountTier::create();
+        $cdTier->ParentType = $customerDiscount->Type;
+        $cdTier->Quantity = 1;
+        $cdTier->Percentage = 90;
+        $cdTier->DiscountID = $customerDiscount->ID;
+        $cdTier->write();
+
+        $customer->DiscountID = $customerDiscount->ID;
+        $customer->write();
+
+        $customerDiscount2 = Discount::create();
+        $customerDiscount2->Title = 'Amazing Customer Discount 2';
+        $customerDiscount2->Type = 'Percent';
+        $customerDiscount2->writeToStage(Versioned::DRAFT);
+        $customerDiscount2->publishSingle();
+
+        $cdTier2 = DiscountTier::create();
+        $cdTier2->ParentType = $customerDiscount2->Type;
+        $cdTier2->Quantity = 1;
+        $cdTier2->Percentage = 80;
+        $cdTier2->DiscountID = $customerDiscount2->ID;
+        $cdTier2->write();
+
+        $alternateCustomer->DiscountID = $customerDiscount2->ID;
+        $alternateCustomer->write();
+
+        $this->logInAs($customer);
+
+        $product = $this->objFromFixture(ProductPage::class, 'productthree');
+        $helper = DiscountHelper::create($product);
+
+        $this->assertEquals(10, $helper->getDiscountedPrice()->getValue());
+
+        $this->logInAs($alternateCustomer);
+        $newHelper = DiscountHelper::create($product);
+
+        $this->assertEquals(20, $newHelper->getDiscountedPrice()->getValue());
+    }
 }
