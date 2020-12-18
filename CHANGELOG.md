@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.2](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.2.2) (2020-12-17)
+
+[Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.2.1...1.2.2)
+
+**Fixed bugs:**
+
+- BUG ProductDataExtension::setDiscountList\(\) does not fetch discounts with no dates [\#48](https://github.com/dynamic/silverstripe-foxy-discounts/issues/48)
+
+**Closed issues:**
+
+- BUG ProductOptions used in discount classes/methods, needs to be updated to support Variations [\#47](https://github.com/dynamic/silverstripe-foxy-discounts/issues/47)
+
+**Merged pull requests:**
+
+- NEW AddToCartFormExtension [\#53](https://github.com/dynamic/silverstripe-foxy-discounts/pull/53) ([muskie9](https://github.com/muskie9))
+
 ## [1.2.1](https://github.com/dynamic/silverstripe-foxy-discounts/tree/1.2.1) (2019-11-30)
 
 [Full Changelog](https://github.com/dynamic/silverstripe-foxy-discounts/compare/1.2.0...1.2.1)
