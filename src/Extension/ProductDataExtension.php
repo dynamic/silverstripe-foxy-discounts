@@ -14,11 +14,6 @@ use SilverStripe\ORM\HasManyList;
 class ProductDataExtension extends DataExtension
 {
     /**
-     * @var
-     */
-    private $discounts_list;
-
-    /**
      * @var DiscountHelper
      */
     private $best_discount;
@@ -31,9 +26,9 @@ class ProductDataExtension extends DataExtension
     ];
 
     /**
-     * @return $this
+     * @return mixed
      */
-    private function setDiscountsList()
+    private function getDiscountsList()
     {
         $list = Discount::get()->filter([
             'StartTime:LessThanOrEqual' => date("Y-m-d H:i:s", strtotime('now')),
@@ -49,23 +44,9 @@ class ProductDataExtension extends DataExtension
 
         $merge = array_merge(array_values($strict->column()), array_values($global->column()));
 
-        $this->discounts_list = (!empty($merge))
+        return (!empty($merge))
             ? Discount::get()->byIDs($merge)
             : null;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getDiscountsList()
-    {
-        if (!$this->discounts_list) {
-            $this->setDiscountsList();
-        }
-
-        return $this->discounts_list;
     }
 
     /**
